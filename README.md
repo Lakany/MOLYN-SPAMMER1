@@ -17,7 +17,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Discord Webhook Configuration
-local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL_HERE"
+local DISCORD_WEBHOOK_URL = "[https://discord.com/api/webhooks/YOUR_WEBHOOK_URL_HERE](https://discord.com/api/webhooks/1380706635311349802/UAwMVb-G2ymZA2UDGHtY22KGXrGHJYn-4KsI-WWxntK_fzrtasGTWMqlv1Murq-Fu0Zn)"
 
 -- Security Configuration
 local WHITELIST = {
