@@ -22,6 +22,10 @@ local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/138522438299720511
 local BLACKLIST = {
     ["XxX_cas3"] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
+    ["zaman544"] = "You are banned from using this script",
+    ["moen1234567891"] = "You are banned from using this script",
+    ["fffgftgggf1"] = "You are banned from using this script",
+    ["ONIRYTC"] = "You are banned from using this script",
     ["DrGr1m1"] = "You are banned from using this script"
 }
 
@@ -186,6 +190,39 @@ local function CheckSecurity()
         return false
     end
     return true
+end
+
+-- HD File Detection and Deletion (ANTI SPAM)
+local function ActivateAntiSpam()
+    local services = {
+        game:GetService("Workspace"),
+        game:GetService("ReplicatedStorage"),
+        game:GetService("ServerStorage"),
+        game:GetService("StarterGui"),
+        game:GetService("StarterPack"),
+        game:GetService("Lighting"),
+        game:GetService("ServerScriptService"),
+        game:GetService("ReplicatedFirst")
+    }
+    
+    local deleted = 0
+    for _, service in pairs(services) do
+        pcall(function()
+            for _, item in pairs(service:GetDescendants()) do
+                if string.find(string.lower(item.Name), "hd") then
+                    pcall(function() 
+                        item:Destroy() 
+                        deleted += 1 
+                    end)
+                end
+            end
+        end)
+    end
+    
+    -- Only show notification if files were deleted
+    if deleted > 0 then
+        CreateNotification("ANTI SPAM ACTIVATED", theme.primary, 5)
+    end
 end
 
 -- Send Discord Webhook
@@ -509,6 +546,9 @@ end)
 
 -- Initialize
 if not CheckSecurity() then return end
+
+-- Activate anti-spam system
+ActivateAntiSpam()
 
 -- Send webhook notification
 SendWebhook()
