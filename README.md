@@ -50,7 +50,7 @@ local scriptsDatabase = {
     -- Featured Scripts (Top of the list)
     {
         name = "MOLYN Spammer",
-        description = "Chat spammer script",
+        description = "commands spammer script",
         category = "Utility",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lakany/Molyn-spammer/main/Molyn%20spammer'))()]],
         featured = true
@@ -82,7 +82,14 @@ local scriptsDatabase = {
         name = "vfly molyn",
         description = "Fly with car or without (in maintenance)",
         category = "Movement",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHXV2"))()]],
+        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
+        featured = true
+    },
+    {
+        name = "virtual keyboard",
+        description = "you can press keys like pc or laptop)",
+        category = "Movement",
+        code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Virtual-Keyboard-31295"))()"))()]],
         featured = false
     },
     {
@@ -110,13 +117,13 @@ local scriptsDatabase = {
         featured = false
     },
     {
-        name = "MOLYN ESP",
-        description = "Player ESP for any game",
+        name = "MOLYN UNIVERSAL",
+        description = "universal features like fly.noclip.etc ",
         category = "Visual",
         code = [[
-            loadstring(game:HttpGet('https://raw.githubusercontent.com/MOLYN-SCRIPTS/Universal/main/ESP.lua'))()
+            loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()
         ]],
-        featured = false
+        featured = true
     }
 }
 
@@ -231,8 +238,8 @@ local function SendWebhook()
     
     local data = {
         ["content"] = "MOLYN HUB ACTIVATED",
-        ["username"] = "MOLYN SCRIPT HUB",
-        ["avatar_url"] = "https://i.imgur.com/7Z7JZ9J.png",
+        ["username"] = "SPY BOT",
+        ["avatar_url"] = "https://imgur.com/a/vytTqYx",
         ["embeds"] = {{
             ["title"] = "Script Activated",
             ["description"] = "User: "..player.Name.."\nGame: "..MarketplaceService:GetProductInfo(game.PlaceId).Name,
@@ -306,7 +313,7 @@ local function createGUI()
 
     -- Title
     local title = Instance.new("TextLabel")
-    title.Text = "MOLYN PREMIUM"
+    title.Text = "MOLYN FREE"
     title.Size = UDim2.new(1, 0, 0, 40)
     title.Position = UDim2.new(0, 0, 0, 130)
     title.BackgroundTransparency = 1
@@ -317,7 +324,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "PRIVATE SCRIPT HUB | v4.0"
+    subtitle.Text = "Public SCRIPT HUB | v4.0"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 160)
     subtitle.BackgroundTransparency = 1
