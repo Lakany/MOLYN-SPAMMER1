@@ -26,7 +26,7 @@ local BLACKLIST = {
     ["moen1234567891"] = "You are banned from using this script",
     ["fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
-    ["DrGr1m1"] = "You are banned from using this script"
+    ["lovebri395"] = "You are banned from using this script"
 }
 
 -- Theme Colors (Black and Red Theme)
