@@ -96,7 +96,7 @@ local scriptsDatabase = {
         name = "MOLYN cmdbar",
         description = "spam commands in chat or something in chat",
         category = "spam",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/Uwu54JfE"))()"))()]],
+        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/Uwu54JfE"))()]],
         featured = true
     },
     {
