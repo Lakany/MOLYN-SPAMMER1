@@ -51,7 +51,7 @@ local scriptsDatabase = {
     {
         name = "MOLYN Spammer",
         description = "commands spammer script",
-        category = "Utility",
+        category = "spam",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lakany/Molyn-spammer/main/Molyn%20spammer'))()]],
         featured = true
     },
@@ -72,7 +72,7 @@ local scriptsDatabase = {
     {
         name = "LAG TEST",
         description = "Delete parts in LAG TEST map",
-        category = "Utility",
+        category = "delete",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/xrZRud3e"))()]],
         featured = true
     },
@@ -91,6 +91,13 @@ local scriptsDatabase = {
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Virtual-Keyboard-31295"))()"))()]],
         featured = false
+    },
+    {
+        name = "MOLYN cmdbar",
+        description = "spam commands in chat or something in chat",
+        category = "spam",
+        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/Uwu54JfE"))()"))()]],
+        featured = true
     },
     {
         name = "Simple Spy",
@@ -239,7 +246,7 @@ local function SendWebhook()
     local data = {
         ["content"] = "MOLYN HUB ACTIVATED",
         ["username"] = "SPY BOT",
-        ["avatar_url"] = "https://imgur.com/a/vytTqYx",
+        ["avatar_url"] = "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn",
         ["embeds"] = {{
             ["title"] = "Script Activated",
             ["description"] = "User: "..player.Name.."\nGame: "..MarketplaceService:GetProductInfo(game.PlaceId).Name,
