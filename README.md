@@ -20,11 +20,11 @@ local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/138893505187768333
 
 -- Security Configuration
 local BLACKLIST = {
-    ["XxX_cas3"] = "You are banned from using this script",
+    ["hd"] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
-    ["fffgftgggf1"] = "You are banned from using this script",
+    ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
     ["lovebri395"] = "You are banned from using this script"
 }
@@ -89,7 +89,7 @@ local scriptsDatabase = {
         name = "virtual keyboard",
         description = "you can press keys like pc or laptop)",
         category = "Movement",
-        code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Virtual-Keyboard-31295"))()"))()]],
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]],
         featured = false
     },
     {
