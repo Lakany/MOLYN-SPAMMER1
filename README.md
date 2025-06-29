@@ -1,7 +1,7 @@
 -- MOLYN SCRIPT HUB
 -- Company: MOLYN DEVELOPMENT
 -- Creator: MOHAMMED
--- Version: 4.0
+-- Version: 4.5
 -- Premium UI Script Hub with Player Control
 
 local Players = game:GetService("Players")
@@ -11,12 +11,19 @@ local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui")
 local MarketplaceService = game:GetService("MarketplaceService")
 local RunService = game:GetService("RunService")
+local VoiceChatService = game:GetService("VoiceChatService")
+local TextChatService = game:GetService("TextChatService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Discord Webhook Configuration
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1388935051877683330/Oppqs6DDEHcndmNxEE7mkfe1LAlrjI5CaDdlHq2xs9iu39ohGlgHRVYL2CfEdD3TY-f_"
+local FEEDBACK_WEBHOOK_URL = DISCORD_WEBHOOK_URL -- Same webhook for feedback
+
+-- User tracking
+local scriptUsers = {}
+local userCountUpdateInterval = 60 -- seconds
 
 -- Security Configuration
 local BLACKLIST = {
@@ -75,6 +82,20 @@ local scriptsDatabase = {
         category = "delete",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/xrZRud3e"))()]],
         featured = true
+    },
+    {
+        name = "Nameless Admin",
+        description = "Powerful admin commands script",
+        category = "Admin",
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]],
+        featured = true
+    },
+    {
+        name = "Unban VC",
+        description = "Join voice chat even if banned",
+        category = "Utility",
+        code = [[game:GetService("VoiceChatService"):RequestJoinByUserId(game:GetService("Players").LocalPlayer.UserId)]],
+        featured = false
     },
     
     -- Other Scripts
@@ -240,9 +261,24 @@ local function ActivateAntiSpam()
 end
 
 -- Send Discord Webhook
-local function SendWebhook()
+local function SendWebhook(url, data)
     if not http_request then return end
     
+    pcall(function()
+        http_request({
+            Url = url,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(data)
+        })
+    end)
+end
+
+-- Track script usage
+local function TrackScriptUsage()
+    -- Send initial webhook
     local data = {
         ["content"] = "MOLYN HUB ACTIVATED",
         ["username"] = "SPY BOT",
@@ -253,21 +289,118 @@ local function SendWebhook()
             ["color"] = 14423100,
             ["fields"] = {
                 {["name"] = "Executor", ["value"] = identifyexecutor() or "Unknown", ["inline"] = true},
-                {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true}
+                {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true},
+                {["name"] = "Total Users", ["value"] = #scriptUsers, ["inline"] = true}
             }
         }}
     }
     
-    pcall(function()
-        http_request({
-            Url = DISCORD_WEBHOOK_URL,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(data)
-        })
-    end)
+    SendWebhook(DISCORD_WEBHOOK_URL, data)
+    
+    -- Periodic updates
+    while true do
+        wait(userCountUpdateInterval)
+        local data = {
+            ["content"] = "MOLYN HUB USAGE UPDATE",
+            ["username"] = "SPY BOT",
+            ["embeds"] = {{
+                ["title"] = "User Count Update",
+                ["description"] = "Current active users: "..#scriptUsers,
+                ["color"] = 14423100,
+                ["fields"] = {
+                    {["name"] = "Game", ["value"] = MarketplaceService:GetProductInfo(game.PlaceId).Name, ["inline"] = true},
+                    {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true}
+                }
+            }}
+        }
+        SendWebhook(DISCORD_WEBHOOK_URL, data)
+    end
+end
+
+-- Improved Admin Manager
+local function SetupAdminCommands()
+    _G.AdminCommands = {
+        kick = function(name)
+            local target = Players:FindFirstChild(name)
+            if target then
+                if target == player then
+                    CreateNotification("You can't kick yourself!", theme.error, 3)
+                    return
+                end
+                
+                -- Try different kick methods
+                pcall(function() target:Kick("Kicked by MOLYN HUB admin") end)
+                pcall(function() game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/kick "..name, "All") end)
+                CreateNotification("Kicked: "..name, theme.success, 3)
+            else
+                CreateNotification("Player not found: "..name, theme.error, 3)
+            end
+        end,
+        
+        ban = function(name)
+            local target = Players:FindFirstChild(name)
+            if target then
+                if target == player then
+                    CreateNotification("You can't ban yourself!", theme.error, 3)
+                    return
+                end
+                
+                -- Try different ban methods
+                pcall(function() target:Kick("Banned by MOLYN HUB admin") end)
+                pcall(function() game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/ban "..name, "All") end)
+                CreateNotification("Banned: "..name, theme.success, 3)
+            else
+                CreateNotification("Player not found: "..name, theme.error, 3)
+            end
+        end,
+        
+        checkUsers = function()
+            local count = #scriptUsers
+            local userList = ""
+            for i, userName in ipairs(scriptUsers) do
+                if i <= 5 then -- Show first 5 users to avoid spam
+                    userList = userList..userName..(i < 5 and ", " or "")
+                end
+            end
+            if count > 5 then
+                userList = userList.." and "..(count - 5).." more"
+            end
+            
+            CreateNotification("MOLYN HUB Users: "..count.." ("..userList..")", theme.primary, 5)
+        end
+    }
+    
+    -- Chat command handler
+    if TextChatService then
+        TextChatService.OnIncomingMessage = function(message)
+            local text = string.lower(message.Text)
+            local speaker = tostring(message.TextSource)
+            
+            if string.sub(text, 1, 6) == "/kick " then
+                local target = string.sub(text, 7)
+                _G.AdminCommands.kick(target)
+            elseif string.sub(text, 1, 5) == "/ban " then
+                local target = string.sub(text, 6)
+                _G.AdminCommands.ban(target)
+            elseif text == "/checkusers" then
+                _G.AdminCommands.checkUsers()
+            end
+        end
+    else -- Fallback for older chat system
+        game:GetService("Players").LocalPlayer.Chatted:Connect(function(msg)
+            local text = string.lower(msg)
+            
+            if string.sub(text, 1, 6) == "/kick " then
+                local target = string.sub(text, 7)
+                _G.AdminCommands.kick(target)
+            elseif string.sub(text, 1, 5) == "/ban " then
+                local target = string.sub(text, 6)
+                _G.AdminCommands.ban(target)
+            elseif text == "/checkusers" then
+                _G.AdminCommands.checkUsers()
+            end
+        end)
+    end
 end
 
 -- Create Main GUI with updated design
@@ -310,13 +443,24 @@ local function createGUI()
     headerCorner.CornerRadius = UDim.new(0, 12)
     headerCorner.Parent = header
 
-    -- Logo using Asset ID 109421193232034
+    -- Square Logo Container
+    local logoContainer = Instance.new("Frame")
+    logoContainer.Size = UDim2.new(0, 100, 0, 100)
+    logoContainer.Position = UDim2.new(0.5, -50, 0.5, -50)
+    logoContainer.BackgroundColor3 = theme.logoBackground
+    logoContainer.Parent = header
+    
+    local logoCorner = Instance.new("UICorner")
+    logoCorner.CornerRadius = UDim.new(0, 12)
+    logoCorner.Parent = logoContainer
+
+    -- Logo using Asset ID 109421193232034 (centered in square)
     local logo = Instance.new("ImageLabel")
     logo.Image = "rbxassetid://109421193232034" -- Actual logo asset
-    logo.Size = UDim2.new(0, 180, 0, 80) -- Adjusted size for the logo
-    logo.Position = UDim2.new(0.5, -90, 0.5, -40) -- Centered
+    logo.Size = UDim2.new(0, 90, 0, 90) -- Slightly smaller than container
+    logo.Position = UDim2.new(0.5, -45, 0.5, -45) -- Centered
     logo.BackgroundTransparency = 1
-    logo.Parent = header
+    logo.Parent = logoContainer
 
     -- Title
     local title = Instance.new("TextLabel")
@@ -331,7 +475,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v4.0"
+    subtitle.Text = "Public SCRIPT HUB | v4.5 | Users: "..#scriptUsers
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 160)
     subtitle.BackgroundTransparency = 1
@@ -354,10 +498,48 @@ local function createGUI()
     btnCorner.CornerRadius = UDim.new(0, 8)
     btnCorner.Parent = closeBtn
 
+    -- Feedback Button
+    local feedbackBtn = Instance.new("TextButton")
+    feedbackBtn.Text = "Feedback"
+    feedbackBtn.Size = UDim2.new(0, 100, 0, 30)
+    feedbackBtn.Position = UDim2.new(0, 10, 1, -40)
+    feedbackBtn.BackgroundColor3 = theme.primary
+    feedbackBtn.TextColor3 = theme.text
+    feedbackBtn.Font = Enum.Font.GothamBold
+    feedbackBtn.Parent = mainFrame
+    
+    local feedbackCorner = Instance.new("UICorner")
+    feedbackCorner.CornerRadius = UDim.new(0, 8)
+    feedbackCorner.Parent = feedbackBtn
+    
+    -- Search Box
+    local searchBox = Instance.new("TextBox")
+    searchBox.PlaceholderText = "Search scripts..."
+    searchBox.Size = UDim2.new(1, -120, 0, 30)
+    searchBox.Position = UDim2.new(0, 10, 0, 190)
+    searchBox.BackgroundColor3 = theme.surface
+    searchBox.TextColor3 = theme.text
+    searchBox.Font = Enum.Font.Gotham
+    searchBox.TextSize = 14
+    searchBox.Parent = mainFrame
+    
+    local searchCorner = Instance.new("UICorner")
+    searchCorner.CornerRadius = UDim.new(0, 8)
+    searchCorner.Parent = searchBox
+    
+    local searchIcon = Instance.new("ImageLabel")
+    searchIcon.Image = "rbxassetid://3926305904" -- Search icon
+    searchIcon.ImageRectOffset = Vector2.new(964, 324)
+    searchIcon.ImageRectSize = Vector2.new(36, 36)
+    searchIcon.Size = UDim2.new(0, 20, 0, 20)
+    searchIcon.Position = UDim2.new(1, -30, 0.5, -10)
+    searchIcon.BackgroundTransparency = 1
+    searchIcon.Parent = searchBox
+
     -- Scripts Container
     local scriptsFrame = Instance.new("ScrollingFrame")
-    scriptsFrame.Size = UDim2.new(1, -20, 1, -200)
-    scriptsFrame.Position = UDim2.new(0, 10, 0, 190)
+    scriptsFrame.Size = UDim2.new(1, -20, 1, -240)
+    scriptsFrame.Position = UDim2.new(0, 10, 0, 230)
     scriptsFrame.BackgroundTransparency = 1
     scriptsFrame.ScrollBarThickness = 6
     scriptsFrame.ScrollBarImageColor3 = theme.primary
@@ -373,6 +555,7 @@ local function createGUI()
         btn.Size = UDim2.new(1, 0, 0, 80)
         btn.BackgroundColor3 = theme.surface
         btn.Parent = scriptsFrame
+        btn.Name = scriptData.name
 
         local btnCorner = Instance.new("UICorner")
         btnCorner.CornerRadius = UDim.new(0, 8)
@@ -490,6 +673,116 @@ local function createGUI()
         createScriptButton(script)
     end
 
+    -- Search functionality
+    searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local searchText = string.lower(searchBox.Text)
+        
+        for _, child in ipairs(scriptsFrame:GetChildren()) do
+            if child:IsA("Frame") then
+                local nameMatch = string.find(string.lower(child.Name), searchText)
+                local visible = searchText == "" or nameMatch
+                child.Visible = visible
+            end
+        end
+    end)
+
+    -- Feedback button functionality
+    feedbackBtn.MouseButton1Click:Connect(function()
+        -- Create feedback popup
+        local feedbackPopup = Instance.new("Frame")
+        feedbackPopup.Size = UDim2.new(0, 400, 0, 250)
+        feedbackPopup.Position = UDim2.new(0.5, -200, 0.5, -125)
+        feedbackPopup.BackgroundColor3 = theme.surface
+        feedbackPopup.Parent = screenGui
+        
+        local popupCorner = Instance.new("UICorner")
+        popupCorner.CornerRadius = UDim.new(0, 12)
+        popupCorner.Parent = feedbackPopup
+        
+        local title = Instance.new("TextLabel")
+        title.Text = "Send Feedback"
+        title.Size = UDim2.new(1, 0, 0, 40)
+        title.Position = UDim2.new(0, 0, 0, 10)
+        title.BackgroundTransparency = 1
+        title.TextColor3 = theme.primary
+        title.Font = Enum.Font.GothamBold
+        title.TextSize = 20
+        title.Parent = feedbackPopup
+        
+        local inputBox = Instance.new("TextBox")
+        inputBox.PlaceholderText = "Enter your feedback or suggestions..."
+        inputBox.Size = UDim2.new(1, -40, 0, 100)
+        inputBox.Position = UDim2.new(0, 20, 0, 60)
+        inputBox.BackgroundColor3 = theme.background
+        inputBox.TextColor3 = theme.text
+        inputBox.Font = Enum.Font.Gotham
+        inputBox.TextSize = 14
+        inputBox.TextWrapped = true
+        inputBox.ClearTextOnFocus = false
+        inputBox.Parent = feedbackPopup
+        
+        local inputCorner = Instance.new("UICorner")
+        inputCorner.CornerRadius = UDim.new(0, 8)
+        inputCorner.Parent = inputBox
+        
+        local sendBtn = Instance.new("TextButton")
+        sendBtn.Text = "SEND"
+        sendBtn.Size = UDim2.new(0, 100, 0, 30)
+        sendBtn.Position = UDim2.new(0.5, -50, 1, -50)
+        sendBtn.BackgroundColor3 = theme.primary
+        sendBtn.TextColor3 = theme.text
+        sendBtn.Font = Enum.Font.GothamBold
+        sendBtn.Parent = feedbackPopup
+        
+        local sendCorner = Instance.new("UICorner")
+        sendCorner.CornerRadius = UDim.new(0, 8)
+        sendCorner.Parent = sendBtn
+        
+        local closeBtn = Instance.new("TextButton")
+        closeBtn.Text = "X"
+        closeBtn.Size = UDim2.new(0, 30, 0, 30)
+        closeBtn.Position = UDim2.new(1, -40, 0, 10)
+        closeBtn.BackgroundColor3 = theme.closeButton
+        closeBtn.TextColor3 = theme.text
+        closeBtn.Font = Enum.Font.GothamBold
+        closeBtn.Parent = feedbackPopup
+        
+        local btnCorner = Instance.new("UICorner")
+        btnCorner.CornerRadius = UDim.new(0, 8)
+        btnCorner.Parent = closeBtn
+        
+        -- Send feedback
+        sendBtn.MouseButton1Click:Connect(function()
+            if inputBox.Text == "" then
+                CreateNotification("Please enter feedback!", theme.error, 3)
+                return
+            end
+            
+            local data = {
+                ["content"] = "MOLYN HUB FEEDBACK",
+                ["username"] = player.Name,
+                ["embeds"] = {{
+                    ["title"] = "New Feedback",
+                    ["description"] = inputBox.Text,
+                    ["color"] = 14423100,
+                    ["fields"] = {
+                        {["name"] = "Game", ["value"] = MarketplaceService:GetProductInfo(game.PlaceId).Name, ["inline"] = true},
+                        {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true}
+                    }
+                }}
+            }
+            
+            SendWebhook(FEEDBACK_WEBHOOK_URL, data)
+            CreateNotification("Feedback sent! Thank you!", theme.success, 3)
+            feedbackPopup:Destroy()
+        end)
+        
+        -- Close popup
+        closeBtn.MouseButton1Click:Connect(function()
+            feedbackPopup:Destroy()
+        end)
+    end)
+
     -- Close Button Function with animation
     closeBtn.MouseButton1Click:Connect(function()
         TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
@@ -537,40 +830,23 @@ local function createGUI()
     return screenGui
 end
 
--- Key binding for toggling GUI
-local guiVisible = false
-local gui = nil
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    
-    if input.KeyCode == Enum.KeyCode.Insert then
-        if guiVisible and gui then
-            gui:Destroy()
-            gui = nil
-            guiVisible = false
-            CreateNotification("MOLYN Hub hidden", theme.textSecondary, 2)
-        else
-            gui = createGUI()
-            guiVisible = true
-            CreateNotification("MOLYN Hub opened", theme.primary, 2)
-        end
-    end
-end)
-
 -- Initialize
 if not CheckSecurity() then return end
 
 -- Activate anti-spam system
 ActivateAntiSpam()
 
--- Send webhook notification
-SendWebhook()
+-- Track script usage
+table.insert(scriptUsers, player.Name)
+spawn(TrackScriptUsage)
+
+-- Setup admin commands
+SetupAdminCommands()
 
 -- Create initial notification
 CreateNotification("MOLYN HUB LOADED", theme.primary, 3)
 
 -- Create GUI automatically
 wait(1)
-gui = createGUI()
-guiVisible = true
+local gui = createGUI()
+local guiVisible = true
