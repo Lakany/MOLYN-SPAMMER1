@@ -109,7 +109,7 @@ local scriptsDatabase = {
     -- Other Scripts
     {
         name = "vfly molyn",
-        description = "Fly with car or without (in maintenance)",
+        description = "Fly with car or without",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
         featured = true
