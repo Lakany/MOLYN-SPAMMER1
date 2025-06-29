@@ -1,7 +1,7 @@
 -- MOLYN SCRIPT HUB
 -- Company: MOLYN DEVELOPMENT
 -- Creator: MOHAMMED
--- Version: 4.5
+-- Version: 4.6
 -- Premium UI Script Hub with Player Control
 
 local Players = game:GetService("Players")
@@ -20,10 +20,6 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- Discord Webhook Configuration
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1388935051877683330/Oppqs6DDEHcndmNxEE7mkfe1LAlrjI5CaDdlHq2xs9iu39ohGlgHRVYL2CfEdD3TY-f_"
 local FEEDBACK_WEBHOOK_URL = DISCORD_WEBHOOK_URL -- Same webhook for feedback
-
--- User tracking
-local scriptUsers = {}
-local userCountUpdateInterval = 60 -- seconds
 
 -- Security Configuration
 local BLACKLIST = {
@@ -94,7 +90,19 @@ local scriptsDatabase = {
         name = "Unban VC",
         description = "Join voice chat even if banned",
         category = "Utility",
-        code = [[game:GetService("VoiceChatService"):RequestJoinByUserId(game:GetService("Players").LocalPlayer.UserId)]],
+        code = [[
+            local success, err = pcall(function()
+                game:GetService("VoiceChatService"):RequestJoinByUserId(game:GetService("Players").LocalPlayer.UserId)
+            end)
+            if not success then
+                warn("VC Unban Error:", err)
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "VC Unban Failed",
+                    Text = "Try again or check console",
+                    Duration = 5
+                })
+            end
+        ]],
         featured = false
     },
     
@@ -125,23 +133,6 @@ local scriptsDatabase = {
         description = "Remote spy for debugging",
         category = "Developer",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua'))()]],
-        featured = false
-    },
-    {
-        name = "MOLYN ADMIN",
-        description = "Premium admin commands with player control",
-        category = "Admin",
-        code = [[
-            _G.AdminCommands = {
-                kick = function(name)
-                    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/kick "..name, "All")
-                end,
-                ban = function(name)
-                    game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/ban "..name, "All")
-                end
-            }
-            print("MOLYN Admin loaded! Use _G.AdminCommands")
-        ]],
         featured = false
     },
     {
@@ -276,47 +267,6 @@ local function SendWebhook(url, data)
     end)
 end
 
--- Track script usage
-local function TrackScriptUsage()
-    -- Send initial webhook
-    local data = {
-        ["content"] = "MOLYN HUB ACTIVATED",
-        ["username"] = "SPY BOT",
-        ["avatar_url"] = "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn",
-        ["embeds"] = {{
-            ["title"] = "Script Activated",
-            ["description"] = "User: "..player.Name.."\nGame: "..MarketplaceService:GetProductInfo(game.PlaceId).Name,
-            ["color"] = 14423100,
-            ["fields"] = {
-                {["name"] = "Executor", ["value"] = identifyexecutor() or "Unknown", ["inline"] = true},
-                {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true},
-                {["name"] = "Total Users", ["value"] = #scriptUsers, ["inline"] = true}
-            }
-        }}
-    }
-    
-    SendWebhook(DISCORD_WEBHOOK_URL, data)
-    
-    -- Periodic updates
-    while true do
-        wait(userCountUpdateInterval)
-        local data = {
-            ["content"] = "MOLYN HUB USAGE UPDATE",
-            ["username"] = "SPY BOT",
-            ["embeds"] = {{
-                ["title"] = "User Count Update",
-                ["description"] = "Current active users: "..#scriptUsers,
-                ["color"] = 14423100,
-                ["fields"] = {
-                    {["name"] = "Game", ["value"] = MarketplaceService:GetProductInfo(game.PlaceId).Name, ["inline"] = true},
-                    {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true}
-                }
-            }}
-        }
-        SendWebhook(DISCORD_WEBHOOK_URL, data)
-    end
-end
-
 -- Improved Admin Manager
 local function SetupAdminCommands()
     _G.AdminCommands = {
@@ -352,21 +302,6 @@ local function SetupAdminCommands()
             else
                 CreateNotification("Player not found: "..name, theme.error, 3)
             end
-        end,
-        
-        checkUsers = function()
-            local count = #scriptUsers
-            local userList = ""
-            for i, userName in ipairs(scriptUsers) do
-                if i <= 5 then -- Show first 5 users to avoid spam
-                    userList = userList..userName..(i < 5 and ", " or "")
-                end
-            end
-            if count > 5 then
-                userList = userList.." and "..(count - 5).." more"
-            end
-            
-            CreateNotification("MOLYN HUB Users: "..count.." ("..userList..")", theme.primary, 5)
         end
     }
     
@@ -382,8 +317,6 @@ local function SetupAdminCommands()
             elseif string.sub(text, 1, 5) == "/ban " then
                 local target = string.sub(text, 6)
                 _G.AdminCommands.ban(target)
-            elseif text == "/checkusers" then
-                _G.AdminCommands.checkUsers()
             end
         end
     else -- Fallback for older chat system
@@ -396,8 +329,6 @@ local function SetupAdminCommands()
             elseif string.sub(text, 1, 5) == "/ban " then
                 local target = string.sub(text, 6)
                 _G.AdminCommands.ban(target)
-            elseif text == "/checkusers" then
-                _G.AdminCommands.checkUsers()
             end
         end)
     end
@@ -475,7 +406,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v4.5 | Users: "..#scriptUsers
+    subtitle.Text = "Public SCRIPT HUB | v4.6"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 160)
     subtitle.BackgroundTransparency = 1
@@ -521,6 +452,8 @@ local function createGUI()
     searchBox.TextColor3 = theme.text
     searchBox.Font = Enum.Font.Gotham
     searchBox.TextSize = 14
+    searchBox.Text = "" -- Clear initial text
+    searchBox.ClearTextOnFocus = false
     searchBox.Parent = mainFrame
     
     local searchCorner = Instance.new("UICorner")
@@ -835,10 +768,6 @@ if not CheckSecurity() then return end
 
 -- Activate anti-spam system
 ActivateAntiSpam()
-
--- Track script usage
-table.insert(scriptUsers, player.Name)
-spawn(TrackScriptUsage)
 
 -- Setup admin commands
 SetupAdminCommands()
