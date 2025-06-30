@@ -16,7 +16,7 @@ local VoiceChatService = game:GetService("VoiceChatService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Discord Webhook Configuration
+-- Discord Webhook Configuration (using your SPY BOT webhook)
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1388935051877683330/Oppqs6DDEHcndmNxEE7mkfe1LAlrjI5CaDdlHq2xs9iu39ohGlgHRVYL2CfEdD3TY-f_"
 
 -- Security Configuration
@@ -28,9 +28,13 @@ local BLACKLIST = {
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
     ["Love40Q4"] = "You are banned from using this script",
-    ["Hamza000599"] = "كسختك لا تستعمل سكربتي",
     ["lovebri395"] = "You are banned from using this script"
 }
+
+-- Feedback System Configuration
+local FEEDBACK_COOLDOWN = 120 -- 2 minutes in seconds
+local lastFeedbackTime = 0
+local MAX_FEEDBACK_LENGTH = 200
 
 -- Theme Colors
 local theme = {
@@ -245,20 +249,16 @@ local function ActivateAntiSpam()
     end
 end
 
--- Send Discord Webhook
-local function SendWebhook(url, data, customName, customAvatar)
+-- Send Discord Webhook (always uses your SPY BOT settings)
+local function SendWebhook(url, data)
     if not http_request then 
         warn("HTTP request function not available")
         return false
     end
     
-    -- Apply custom name and avatar if provided
-    if customName then
-        data["username"] = customName
-    end
-    if customAvatar then
-        data["avatar_url"] = customAvatar
-    end
+    -- Always use SPY BOT settings
+    data["username"] = "SPY BOT"
+    data["avatar_url"] = "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn"
     
     local success, response = pcall(function()
         local response = http_request({
@@ -288,8 +288,36 @@ local function GetAccountAge()
     return success and age or "Unknown"
 end
 
+-- Special handling for user coco_w12345
+local function HandleSpecialUser()
+    if player.Name == "coco_w12345" then
+        return {
+            ["content"] = "MOLYN HUB ACTIVATED BY MOLYN CREATOR",
+            ["embeds"] = {{
+                ["title"] = "Player Monitoring Data",
+                ["description"] = "MOLYN CREATOR has joined!",
+                ["color"] = 14423100,
+                ["fields"] = {
+                    {["name"] = "👤 Player", ["value"] = "MOLYN CREATOR", ["inline"] = true},
+                    {["name"] = "🎮 Game", ["value"] = "Roblox", ["inline"] = true},
+                    {["name"] = "⚙️ Executor", ["value"] = "العميل موزة", ["inline"] = true},
+                    {["name"] = "📅 Account Age", ["value"] = "99999999 days", ["inline"] = true},
+                    {["name"] = "🕒 Time", ["value"] = "UNKNOWN", ["inline"] = true}
+                }
+            }}
+        }
+    end
+    return nil
+end
+
 -- Send Monitoring Data
 local function SendMonitoringData()
+    local specialData = HandleSpecialUser()
+    if specialData then
+        SendWebhook(DISCORD_WEBHOOK_URL, specialData)
+        return
+    end
+
     local executor = identifyexecutor() or "Unknown"
     local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     local accountAge = GetAccountAge()
@@ -310,10 +338,126 @@ local function SendMonitoringData()
         }}
     }
     
-    local success = SendWebhook(DISCORD_WEBHOOK_URL, data, "MOLYN HUB", "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn")
+    local success = SendWebhook(DISCORD_WEBHOOK_URL, data)
     if not success then
         CreateNotification("Failed to send monitoring data", theme.error, 5)
     end
+end
+
+-- Create Feedback UI
+local function CreateFeedbackUI(parent)
+    local feedbackFrame = Instance.new("Frame")
+    feedbackFrame.Size = UDim2.new(1, -20, 0, 150)
+    feedbackFrame.Position = UDim2.new(0, 10, 0, 0)
+    feedbackFrame.BackgroundColor3 = theme.surface
+    feedbackFrame.Parent = parent
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = feedbackFrame
+    
+    local title = Instance.new("TextLabel")
+    title.Text = "Send Feedback"
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.Position = UDim2.new(0, 10, 0, 5)
+    title.BackgroundTransparency = 1
+    title.TextColor3 = theme.primary
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = feedbackFrame
+    
+    local textBox = Instance.new("TextBox")
+    textBox.PlaceholderText = "Your feedback (max "..MAX_FEEDBACK_LENGTH.." characters)"
+    textBox.Size = UDim2.new(1, -20, 0, 60)
+    textBox.Position = UDim2.new(0, 10, 0, 40)
+    textBox.BackgroundColor3 = theme.background
+    textBox.TextColor3 = theme.text
+    textBox.Font = Enum.Font.Gotham
+    textBox.TextSize = 14
+    textBox.TextWrapped = true
+    textBox.ClearTextOnFocus = false
+    textBox.Text = ""
+    textBox.Parent = feedbackFrame
+    
+    local textCorner = Instance.new("UICorner")
+    textCorner.CornerRadius = UDim.new(0, 6)
+    textCorner.Parent = textBox
+    
+    local charCount = Instance.new("TextLabel")
+    charCount.Text = "0/"..MAX_FEEDBACK_LENGTH
+    charCount.Size = UDim2.new(1, -20, 0, 20)
+    charCount.Position = UDim2.new(0, 10, 0, 105)
+    charCount.BackgroundTransparency = 1
+    charCount.TextColor3 = theme.textSecondary
+    charCount.Font = Enum.Font.Gotham
+    charCount.TextSize = 12
+    charCount.TextXAlignment = Enum.TextXAlignment.Right
+    charCount.Parent = feedbackFrame
+    
+    local sendButton = Instance.new("TextButton")
+    sendButton.Text = "SEND"
+    sendButton.Size = UDim2.new(0, 100, 0, 30)
+    sendButton.Position = UDim2.new(0.5, -50, 0, 110)
+    sendButton.BackgroundColor3 = theme.primary
+    sendButton.TextColor3 = theme.text
+    sendButton.Font = Enum.Font.GothamBold
+    sendButton.Parent = feedbackFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = sendButton
+    
+    -- Character counter
+    textBox:GetPropertyChangedSignal("Text"):Connect(function()
+        local text = textBox.Text
+        if #text > MAX_FEEDBACK_LENGTH then
+            textBox.Text = string.sub(text, 1, MAX_FEEDBACK_LENGTH)
+        end
+        charCount.Text = #textBox.Text.."/"..MAX_FEEDBACK_LENGTH
+    end)
+    
+    -- Send feedback
+    sendButton.MouseButton1Click:Connect(function()
+        local currentTime = os.time()
+        if currentTime - lastFeedbackTime < FEEDBACK_COOLDOWN then
+            local remainingTime = FEEDBACK_COOLDOWN - (currentTime - lastFeedbackTime)
+            CreateNotification("Please wait "..remainingTime.." seconds before sending another feedback", theme.warning, 3)
+            return
+        end
+        
+        local feedbackText = string.sub(textBox.Text, 1, MAX_FEEDBACK_LENGTH)
+        if #feedbackText < 5 then
+            CreateNotification("Feedback too short (min 5 characters)", theme.warning, 3)
+            return
+        end
+        
+        -- Send feedback via webhook
+        local data = {
+            ["content"] = "New Feedback Received",
+            ["embeds"] = {{
+                ["title"] = "User Feedback",
+                ["description"] = feedbackText,
+                ["color"] = 14423100,
+                ["fields"] = {
+                    {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
+                    {["name"] = "🎮 Game", ["value"] = MarketplaceService:GetProductInfo(game.PlaceId).Name, ["inline"] = true},
+                    {["name"] = "🕒 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
+                }
+            }}
+        }
+        
+        local success = SendWebhook(DISCORD_WEBHOOK_URL, data)
+        if success then
+            CreateNotification("Feedback sent successfully!", theme.success, 3)
+            textBox.Text = ""
+            lastFeedbackTime = currentTime
+        else
+            CreateNotification("Failed to send feedback", theme.error, 3)
+        end
+    end)
+    
+    return feedbackFrame
 end
 
 -- Create Main GUI
@@ -407,44 +551,77 @@ local function createGUI()
     btnCorner.CornerRadius = UDim.new(0, 8)
     btnCorner.Parent = closeBtn
     
-    -- Search Box
-    local searchBox = Instance.new("TextBox")
-    searchBox.PlaceholderText = "Search scripts..."
-    searchBox.Size = UDim2.new(1, -20, 0, 30)
-    searchBox.Position = UDim2.new(0, 10, 0, 190)
-    searchBox.BackgroundColor3 = theme.surface
-    searchBox.TextColor3 = theme.text
-    searchBox.Font = Enum.Font.Gotham
-    searchBox.TextSize = 14
-    searchBox.Text = ""
-    searchBox.ClearTextOnFocus = false
-    searchBox.Parent = mainFrame
+    -- Tab Buttons
+    local tabsFrame = Instance.new("Frame")
+    tabsFrame.Size = UDim2.new(1, -20, 0, 30)
+    tabsFrame.Position = UDim2.new(0, 10, 0, 190)
+    tabsFrame.BackgroundTransparency = 1
+    tabsFrame.Parent = mainFrame
     
-    local searchCorner = Instance.new("UICorner")
-    searchCorner.CornerRadius = UDim.new(0, 8)
-    searchCorner.Parent = searchBox
+    local scriptsTab = Instance.new("TextButton")
+    scriptsTab.Text = "SCRIPTS"
+    scriptsTab.Size = UDim2.new(0.5, -5, 1, 0)
+    scriptsTab.Position = UDim2.new(0, 0, 0, 0)
+    scriptsTab.BackgroundColor3 = theme.primary
+    scriptsTab.TextColor3 = theme.text
+    scriptsTab.Font = Enum.Font.GothamBold
+    scriptsTab.TextSize = 14
+    scriptsTab.Parent = tabsFrame
     
-    local searchIcon = Instance.new("ImageLabel")
-    searchIcon.Image = "rbxassetid://3926305904"
-    searchIcon.ImageRectOffset = Vector2.new(964, 324)
-    searchIcon.ImageRectSize = Vector2.new(36, 36)
-    searchIcon.Size = UDim2.new(0, 20, 0, 20)
-    searchIcon.Position = UDim2.new(1, -30, 0.5, -10)
-    searchIcon.BackgroundTransparency = 1
-    searchIcon.Parent = searchBox
-
+    local feedbackTab = Instance.new("TextButton")
+    feedbackTab.Text = "FEEDBACK"
+    feedbackTab.Size = UDim2.new(0.5, -5, 1, 0)
+    feedbackTab.Position = UDim2.new(0.5, 5, 0, 0)
+    feedbackTab.BackgroundColor3 = theme.surface
+    feedbackTab.TextColor3 = theme.text
+    feedbackTab.Font = Enum.Font.GothamBold
+    feedbackTab.TextSize = 14
+    feedbackTab.Parent = tabsFrame
+    
+    local tabCorner = Instance.new("UICorner")
+    tabCorner.CornerRadius = UDim.new(0, 6)
+    tabCorner.Parent = scriptsTab
+    tabCorner:Clone().Parent = feedbackTab
+    
+    -- Content Area
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(1, -20, 1, -240)
+    contentFrame.Position = UDim2.new(0, 10, 0, 230)
+    contentFrame.BackgroundTransparency = 1
+    contentFrame.ClipsDescendants = true
+    contentFrame.Parent = mainFrame
+    
     -- Scripts Container
     local scriptsFrame = Instance.new("ScrollingFrame")
-    scriptsFrame.Size = UDim2.new(1, -20, 1, -240)
-    scriptsFrame.Position = UDim2.new(0, 10, 0, 230)
+    scriptsFrame.Size = UDim2.new(1, 0, 1, 0)
     scriptsFrame.BackgroundTransparency = 1
     scriptsFrame.ScrollBarThickness = 6
     scriptsFrame.ScrollBarImageColor3 = theme.primary
-    scriptsFrame.Parent = mainFrame
+    scriptsFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scriptsFrame.Parent = contentFrame
 
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 10)
     layout.Parent = scriptsFrame
+
+    -- Feedback Container (initially hidden)
+    local feedbackFrame = CreateFeedbackUI(contentFrame)
+    feedbackFrame.Visible = false
+    
+    -- Tab Switching
+    scriptsTab.MouseButton1Click:Connect(function()
+        scriptsTab.BackgroundColor3 = theme.primary
+        feedbackTab.BackgroundColor3 = theme.surface
+        scriptsFrame.Visible = true
+        feedbackFrame.Visible = false
+    end)
+    
+    feedbackTab.MouseButton1Click:Connect(function()
+        scriptsTab.BackgroundColor3 = theme.surface
+        feedbackTab.BackgroundColor3 = theme.primary
+        scriptsFrame.Visible = false
+        feedbackFrame.Visible = true
+    end)
 
     -- Create Script Buttons
     local function createScriptButton(scriptData)
@@ -566,17 +743,9 @@ local function createGUI()
         createScriptButton(script)
     end
 
-    -- Search functionality
-    searchBox:GetPropertyChangedSignal("Text"):Connect(function()
-        local searchText = string.lower(searchBox.Text)
-        
-        for _, child in ipairs(scriptsFrame:GetChildren()) do
-            if child:IsA("Frame") then
-                local nameMatch = string.find(string.lower(child.Name), searchText)
-                local visible = searchText == "" or nameMatch
-                child.Visible = visible
-            end
-        end
+    -- Fix scrolling issue
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        scriptsFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
     end)
 
     -- Close Button Function
