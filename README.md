@@ -21,14 +21,14 @@ local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/138893505187768333
 
 -- Security Configuration
 local BLACKLIST = {
-    ["lollllllkk30"] = "You are banned from using this script",
+    ["."] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
     ["Love40Q4"] = "You are banned from using this script",
-    ["lovebri395"] = "You are banned from using this script"
+    ["."] = "You are banned from using this script"
 }
 
 -- Feedback System Configuration
