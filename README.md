@@ -1,7 +1,7 @@
 -- MOLYN SCRIPT HUB
 -- Company: MOLYN DEVELOPMENT
 -- Creator: MOHAMMED
--- Version: 5.0
+-- Version: 5.2
 -- Premium UI Script Hub
 
 local Players = game:GetService("Players")
@@ -18,16 +18,16 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 -- Discord Webhook Configuration
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1388935051877683330/Oppqs6DDEHcndmNxEE7mkfe1LAlrjI5CaDdlHq2xs9iu39ohGlgHRVYL2CfEdD3TY-f_"
-local FEEDBACK_WEBHOOK_URL = DISCORD_WEBHOOK_URL
 
 -- Security Configuration
 local BLACKLIST = {
-    ["hd"] = "You are banned from using this script",
+    ["lollllllkk30"] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
+    ["Love40Q4"] = "You are banned from using this script",
     ["lovebri395"] = "You are banned from using this script"
 }
 
@@ -112,7 +112,7 @@ local scriptsDatabase = {
     },
     {
         name = "virtual keyboard",
-        description = "you can press keys like pc or laptop)",
+        description = "you can press keys like pc or laptop",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]],
         featured = false
@@ -245,10 +245,18 @@ local function ActivateAntiSpam()
 end
 
 -- Send Discord Webhook
-local function SendWebhook(url, data)
+local function SendWebhook(url, data, customName, customAvatar)
     if not http_request then 
         warn("HTTP request function not available")
         return false
+    end
+    
+    -- Apply custom name and avatar if provided
+    if customName then
+        data["username"] = customName
+    end
+    if customAvatar then
+        data["avatar_url"] = customAvatar
     end
     
     local success, response = pcall(function()
@@ -287,8 +295,6 @@ local function SendMonitoringData()
     
     local data = {
         ["content"] = "MOLYN HUB ACTIVATED",
-        ["username"] = "MOLYN SPY BOT",
-        ["avatar_url"] = "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn",
         ["embeds"] = {{
             ["title"] = "Player Monitoring Data",
             ["description"] = "New script activation detected",
@@ -303,7 +309,7 @@ local function SendMonitoringData()
         }}
     }
     
-    local success = SendWebhook(DISCORD_WEBHOOK_URL, data)
+    local success = SendWebhook(DISCORD_WEBHOOK_URL, data, "MOLYN HUB", "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn")
     if not success then
         CreateNotification("Failed to send monitoring data", theme.error, 5)
     end
@@ -377,7 +383,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v5.0"
+    subtitle.Text = "Public SCRIPT HUB | v5.2"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 160)
     subtitle.BackgroundTransparency = 1
@@ -399,25 +405,11 @@ local function createGUI()
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 8)
     btnCorner.Parent = closeBtn
-
-    -- Feedback Button
-    local feedbackBtn = Instance.new("TextButton")
-    feedbackBtn.Text = "Feedback"
-    feedbackBtn.Size = UDim2.new(0, 100, 0, 30)
-    feedbackBtn.Position = UDim2.new(0, 10, 1, -40)
-    feedbackBtn.BackgroundColor3 = theme.primary
-    feedbackBtn.TextColor3 = theme.text
-    feedbackBtn.Font = Enum.Font.GothamBold
-    feedbackBtn.Parent = mainFrame
-    
-    local feedbackCorner = Instance.new("UICorner")
-    feedbackCorner.CornerRadius = UDim.new(0, 8)
-    feedbackCorner.Parent = feedbackBtn
     
     -- Search Box
     local searchBox = Instance.new("TextBox")
     searchBox.PlaceholderText = "Search scripts..."
-    searchBox.Size = UDim2.new(1, -120, 0, 30)
+    searchBox.Size = UDim2.new(1, -20, 0, 30)
     searchBox.Position = UDim2.new(0, 10, 0, 190)
     searchBox.BackgroundColor3 = theme.surface
     searchBox.TextColor3 = theme.text
@@ -584,107 +576,6 @@ local function createGUI()
                 child.Visible = visible
             end
         end
-    end)
-
-    -- Feedback button functionality
-    feedbackBtn.MouseButton1Click:Connect(function()
-        -- Create feedback popup
-        local feedbackPopup = Instance.new("Frame")
-        feedbackPopup.Size = UDim2.new(0, 400, 0, 250)
-        feedbackPopup.Position = UDim2.new(0.5, -200, 0.5, -125)
-        feedbackPopup.BackgroundColor3 = theme.surface
-        feedbackPopup.Parent = screenGui
-        
-        local popupCorner = Instance.new("UICorner")
-        popupCorner.CornerRadius = UDim.new(0, 12)
-        popupCorner.Parent = feedbackPopup
-        
-        local title = Instance.new("TextLabel")
-        title.Text = "Send Feedback"
-        title.Size = UDim2.new(1, 0, 0, 40)
-        title.Position = UDim2.new(0, 0, 0, 10)
-        title.BackgroundTransparency = 1
-        title.TextColor3 = theme.primary
-        title.Font = Enum.Font.GothamBold
-        title.TextSize = 20
-        title.Parent = feedbackPopup
-        
-        local inputBox = Instance.new("TextBox")
-        inputBox.PlaceholderText = "Enter your feedback or suggestions..."
-        inputBox.Size = UDim2.new(1, -40, 0, 100)
-        inputBox.Position = UDim2.new(0, 20, 0, 60)
-        inputBox.BackgroundColor3 = theme.background
-        inputBox.TextColor3 = theme.text
-        inputBox.Font = Enum.Font.Gotham
-        inputBox.TextSize = 14
-        inputBox.TextWrapped = true
-        inputBox.ClearTextOnFocus = false
-        inputBox.Parent = feedbackPopup
-        
-        local inputCorner = Instance.new("UICorner")
-        inputCorner.CornerRadius = UDim.new(0, 8)
-        inputCorner.Parent = inputBox
-        
-        local sendBtn = Instance.new("TextButton")
-        sendBtn.Text = "SEND"
-        sendBtn.Size = UDim2.new(0, 100, 0, 30)
-        sendBtn.Position = UDim2.new(0.5, -50, 1, -50)
-        sendBtn.BackgroundColor3 = theme.primary
-        sendBtn.TextColor3 = theme.text
-        sendBtn.Font = Enum.Font.GothamBold
-        sendBtn.Parent = feedbackPopup
-        
-        local sendCorner = Instance.new("UICorner")
-        sendCorner.CornerRadius = UDim.new(0, 8)
-        sendCorner.Parent = sendBtn
-        
-        local closeBtn = Instance.new("TextButton")
-        closeBtn.Text = "X"
-        closeBtn.Size = UDim2.new(0, 30, 0, 30)
-        closeBtn.Position = UDim2.new(1, -40, 0, 10)
-        closeBtn.BackgroundColor3 = theme.closeButton
-        closeBtn.TextColor3 = theme.text
-        closeBtn.Font = Enum.Font.GothamBold
-        closeBtn.Parent = feedbackPopup
-        
-        local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 8)
-        btnCorner.Parent = closeBtn
-        
-        -- Send feedback
-        sendBtn.MouseButton1Click:Connect(function()
-            if inputBox.Text == "" then
-                CreateNotification("Please enter feedback!", theme.error, 3)
-                return
-            end
-            
-            local data = {
-                ["content"] = "MOLYN HUB FEEDBACK",
-                ["username"] = player.Name,
-                ["embeds"] = {{
-                    ["title"] = "New Feedback",
-                    ["description"] = inputBox.Text,
-                    ["color"] = 14423100,
-                    ["fields"] = {
-                        {["name"] = "Game", ["value"] = MarketplaceService:GetProductInfo(game.PlaceId).Name, ["inline"] = true},
-                        {["name"] = "Time", ["value"] = os.date("%X"), ["inline"] = true}
-                    }
-                }}
-            }
-            
-            local success = SendWebhook(FEEDBACK_WEBHOOK_URL, data)
-            if success then
-                CreateNotification("Feedback sent! Thank you!", theme.success, 3)
-                feedbackPopup:Destroy()
-            else
-                CreateNotification("Failed to send feedback", theme.error, 3)
-            end
-        end)
-        
-        -- Close popup
-        closeBtn.MouseButton1Click:Connect(function()
-            feedbackPopup:Destroy()
-        end)
     end)
 
     -- Close Button Function
