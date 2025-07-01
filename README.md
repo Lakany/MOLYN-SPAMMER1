@@ -17,7 +17,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Discord Webhook Configuration (using your SPY BOT webhook)
-local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1388935051877683330/Oppqs6DDEHcndmNxEE7mkfe1LAlrjI5CaDdlHq2xs9iu39ohGlgHRVYL2CfEdD3TY-f_"
+local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1389675325478404296/Km4KsARLqWdi-7eMdzxv6Q1arSXg4T1lEGL1bIQQO3Dd5fNqrAbAEofumNKtTV5xK03F"
 
 -- Security Configuration
 local BLACKLIST = {
