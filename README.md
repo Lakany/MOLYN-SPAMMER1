@@ -27,8 +27,7 @@ local BLACKLIST = {
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
-    ["Love40Q4"] = "You are banned from using this script",
-    ["."] = "You are banned from using this script"
+    ["Love40Q4"] = "You are banned from using this script"
 }
 
 -- Feedback System Configuration
@@ -141,6 +140,13 @@ local scriptsDatabase = {
         description = "universal features like fly.noclip.etc",
         category = "Visual",
         code = [[loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()]],
+        featured = true
+    },
+    {
+        name = "Greenville OP",
+        description = "Car modification like speed and turbo and more",
+        category = "Vehicle",
+        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lugtastic/hubs/main/EcuX-V2.lua',true))()]],
         featured = true
     }
 }
@@ -692,6 +698,24 @@ local function createGUI()
             
             if success then
                 CreateNotification("Executed: "..scriptData.name, theme.success, 3)
+                
+                -- Send execution data to webhook
+                local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+                local data = {
+                    ["content"] = "Script Executed",
+                    ["embeds"] = {{
+                        ["title"] = "Script Execution",
+                        ["description"] = "Player executed a script from MOLYN HUB",
+                        ["color"] = 14423100,
+                        ["fields"] = {
+                            {["name"] = "📜 Script", ["value"] = scriptData.name, ["inline"] = true},
+                            {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
+                            {["name"] = "🎮 Game", ["value"] = gameName, ["inline"] = true},
+                            {["name"] = "📅 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
+                        }
+                    }}
+                }
+                SendWebhook(DISCORD_WEBHOOK_URL, data)
             else
                 CreateNotification("Failed: "..scriptData.name, theme.error, 3)
                 warn("Execution error:", err)
