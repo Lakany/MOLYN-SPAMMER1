@@ -759,7 +759,7 @@ local function createGUI()
                         }
                     }}
                 }
-                SendWebhook(DISCORD_WEBHOOK_URL, data)
+                SendWebhook(jeneL, data)
             else
                 CreateNotification("Failed: "..scriptData.name, theme.error, 3)
                 warn("Execution error:", err)
