@@ -54,6 +54,20 @@ local theme = {
 -- Scripts Database
 local scriptsDatabase = {
     {
+        name = "Blox Fruits Redz",
+        description = "Auto Farm, Auto Race V4, and more",
+        category = "Combat",
+        code = [[
+            local Settings = {
+                JoinTeam = "Pirates", -- Pirates / Marines
+                Translator = true     -- true / false
+            }
+            
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
+        ]],
+        featured = true
+    },
+    {
         name = "MOLYN Spammer",
         description = "commands spammer script",
         category = "spam",
@@ -698,24 +712,6 @@ local function createGUI()
             
             if success then
                 CreateNotification("Executed: "..scriptData.name, theme.success, 3)
-                
-                -- Send execution data to webhook
-                local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-                local data = {
-                    ["content"] = "Script Executed",
-                    ["embeds"] = {{
-                        ["title"] = "Script Execution",
-                        ["description"] = "Player executed a script from MOLYN HUB",
-                        ["color"] = 14423100,
-                        ["fields"] = {
-                            {["name"] = "📜 Script", ["value"] = scriptData.name, ["inline"] = true},
-                            {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
-                            {["name"] = "🎮 Game", ["value"] = gameName, ["inline"] = true},
-                            {["name"] = "📅 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
-                        }
-                    }}
-                }
-                SendWebhook(DISCORD_WEBHOOK_URL, data)
             else
                 CreateNotification("Failed: "..scriptData.name, theme.error, 3)
                 warn("Execution error:", err)
