@@ -21,8 +21,8 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Webhook configuration
-local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1389675325478404296/Km4KsARLqWdi-7eMdzxv6Q1arSXg4T1lEGL1bIQQO3Dd5fNqrAbAEofumNKtTV5xK03F"
-local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1390644939473289370/SuX3jlUs3h9GN0VWOjNDjYWJHOwBI984JB29q4EVbwcbrRzA6WknLTcrClv5ng3EMtPY"
+local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/iXggOTjgDBm5RhygIozJyBvjmDMktVcKDvdf1OnccwhBMQeiObxk4vnp8x6XczX8mSCD"
+local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1390644943109750834/usIWKQH7mVQkZFnd6rJ9GrDCzzpaKOB0PjG0C9Zb53xcmXj5MKXbRcZSRLc-q1YzNZyO"
 
 -- Security system
 local BLACKLIST = {
