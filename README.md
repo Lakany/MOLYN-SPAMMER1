@@ -2,8 +2,13 @@
   MOLYN SCRIPT HUB
   Company: MOLYN DEVELOPMENT
   Creator: MOHAMMED
-  Version: 5.2
+  Version: 5.7
   Premium UI Script Hub
+  Features:
+  - واجهة متكاملة سهلة الاستخدام
+  - دعم للهواتف والحواسب
+  - نظام حماية متقدم
+  - شريط بحث للوصول السريع
 ]]
 
 -- Services
@@ -15,6 +20,8 @@ local CoreGui = game:GetService("CoreGui")
 local MarketplaceService = game:GetService("MarketplaceService")
 local RunService = game:GetService("RunService")
 local VoiceChatService = game:GetService("VoiceChatService")
+local StarterGui = game:GetService("StarterGui")
+local TextService = game:GetService("TextService")
 
 -- Player references
 local player = Players.LocalPlayer
@@ -35,6 +42,9 @@ local BLACKLIST = {
     ["Love40Q4"] = "You are banned from using this script"
 }
 
+-- Warning list
+local WARNING_LIST = "⚠️ don't trust/لا تثق ⚠️: zaman544 % Fffgftgggf1 % moen1234567891 % ONIRYTC"
+
 -- Feedback system
 local FEEDBACK_COOLDOWN = 120
 local lastFeedbackTime = 0
@@ -53,11 +63,41 @@ local theme = {
     warning = Color3.fromRGB(255, 255, 50),
     error = Color3.fromRGB(255, 50, 50),
     closeButton = Color3.fromRGB(255, 50, 50),
-    logoBackground = Color3.fromRGB(0, 0, 0)
+    logoBackground = Color3.fromRGB(0, 0, 0),
+    discordBlue = Color3.fromRGB(88, 101, 242)
 }
 
 -- Scripts database
 local scriptsDatabase = {
+    {
+        name = "MM2 & Flee the Facility OP",
+        description = "OP Features like aimbot and auto shot for mm2 and more",
+        category = "Game",
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua", false))()]],
+        featured = true
+    },
+    {
+        name = "backdoor.exe",
+        description = "backdoor scanner",
+        category = "Utility",
+        code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Backdoor-exe-9413"))()]],
+        featured = true
+    },
+    {
+        name = "INFINITE MONEY eight driver",
+        description = "get infinite money",
+        category = "Money",
+        code = [[
+            local money = 9e9 --Change the number of money you want
+            local A_1 = "Sanctioned"
+            local A_2 = -money
+            local A_3 = "0"
+            local A_4 = {}
+            local Event = game:GetService("ReplicatedStorage").RemoteEvent
+            Event:FireServer(A_1, A_2, A_3, A_4)
+        ]],
+        featured = true
+    },
     {
         name = "MOLYN Spammer",
         description = "commands spammer script",
@@ -370,7 +410,7 @@ end
 -- Feedback UI
 local function CreateFeedbackUI(parent)
     local feedbackFrame = Instance.new("Frame")
-    feedbackFrame.Size = UDim2.new(1, -20, 0, 150)
+    feedbackFrame.Size = UDim2.new(1, -20, 0, 280)
     feedbackFrame.Position = UDim2.new(0, 10, 0, 0)
     feedbackFrame.BackgroundColor3 = theme.surface
     feedbackFrame.Parent = parent
@@ -379,10 +419,51 @@ local function CreateFeedbackUI(parent)
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = feedbackFrame
     
+    -- Warning Label
+    local warningLabel = Instance.new("TextLabel")
+    warningLabel.Text = WARNING_LIST
+    warningLabel.Size = UDim2.new(1, -20, 0, 40)
+    warningLabel.Position = UDim2.new(0, 10, 0, 10)
+    warningLabel.BackgroundColor3 = theme.error
+    warningLabel.TextColor3 = theme.text
+    warningLabel.Font = Enum.Font.GothamBold
+    warningLabel.TextSize = 12
+    warningLabel.TextWrapped = true
+    warningLabel.Parent = feedbackFrame
+    
+    local warningCorner = Instance.new("UICorner")
+    warningCorner.CornerRadius = UDim.new(0, 6)
+    warningCorner.Parent = warningLabel
+    
+    -- Discord Button
+    local discordButton = Instance.new("TextButton")
+    discordButton.Text = "JOIN SERVER DISCORD"
+    discordButton.Size = UDim2.new(1, -20, 0, 40)
+    discordButton.Position = UDim2.new(0, 10, 0, 60)
+    discordButton.BackgroundColor3 = theme.discordBlue
+    discordButton.TextColor3 = theme.text
+    discordButton.Font = Enum.Font.GothamBold
+    discordButton.TextSize = 16
+    discordButton.Parent = feedbackFrame
+    
+    local discordCorner = Instance.new("UICorner")
+    discordCorner.CornerRadius = UDim.new(0, 6)
+    discordCorner.Parent = discordButton
+    
+    discordButton.MouseButton1Click:Connect(function()
+        if setclipboard then
+            setclipboard("https://discord.gg/zvnNwE3KWd")
+            CreateNotification("تم نسخ رابط الديسكورد!", theme.success, 3)
+        else
+            CreateNotification("لا يمكن نسخ الرابط في هذا الإكسكيوتور", theme.error, 3)
+        end
+    end)
+    
+    -- Feedback Title
     local title = Instance.new("TextLabel")
     title.Text = "Send Feedback"
     title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 10, 0, 5)
+    title.Position = UDim2.new(0, 10, 0, 110)
     title.BackgroundTransparency = 1
     title.TextColor3 = theme.primary
     title.Font = Enum.Font.GothamBold
@@ -390,10 +471,11 @@ local function CreateFeedbackUI(parent)
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = feedbackFrame
     
+    -- Feedback Text Box
     local textBox = Instance.new("TextBox")
     textBox.PlaceholderText = "Your feedback (max "..MAX_FEEDBACK_LENGTH.." characters)"
     textBox.Size = UDim2.new(1, -20, 0, 60)
-    textBox.Position = UDim2.new(0, 10, 0, 40)
+    textBox.Position = UDim2.new(0, 10, 0, 140)
     textBox.BackgroundColor3 = theme.background
     textBox.TextColor3 = theme.text
     textBox.Font = Enum.Font.Gotham
@@ -407,10 +489,11 @@ local function CreateFeedbackUI(parent)
     textCorner.CornerRadius = UDim.new(0, 6)
     textCorner.Parent = textBox
     
+    -- Character Count
     local charCount = Instance.new("TextLabel")
     charCount.Text = "0/"..MAX_FEEDBACK_LENGTH
     charCount.Size = UDim2.new(1, -20, 0, 20)
-    charCount.Position = UDim2.new(0, 10, 0, 105)
+    charCount.Position = UDim2.new(0, 10, 0, 205)
     charCount.BackgroundTransparency = 1
     charCount.TextColor3 = theme.textSecondary
     charCount.Font = Enum.Font.Gotham
@@ -418,10 +501,11 @@ local function CreateFeedbackUI(parent)
     charCount.TextXAlignment = Enum.TextXAlignment.Right
     charCount.Parent = feedbackFrame
     
+    -- Send Button
     local sendButton = Instance.new("TextButton")
     sendButton.Text = "SEND"
     sendButton.Size = UDim2.new(0, 100, 0, 30)
-    sendButton.Position = UDim2.new(0.5, -50, 0, 110)
+    sendButton.Position = UDim2.new(0.5, -50, 0, 230)
     sendButton.BackgroundColor3 = theme.primary
     sendButton.TextColor3 = theme.text
     sendButton.Font = Enum.Font.GothamBold
@@ -430,6 +514,18 @@ local function CreateFeedbackUI(parent)
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 6)
     btnCorner.Parent = sendButton
+    
+    -- Credits
+    local credits = Instance.new("TextLabel")
+    credits.Text = "Credits:\nمحمد / coc*_****5"
+    credits.Size = UDim2.new(1, -20, 0, 40)
+    credits.Position = UDim2.new(0, 10, 1, -50)
+    credits.BackgroundTransparency = 1
+    credits.TextColor3 = theme.textSecondary
+    credits.Font = Enum.Font.Gotham
+    credits.TextSize = 12
+    credits.TextXAlignment = Enum.TextXAlignment.Left
+    credits.Parent = feedbackFrame
     
     textBox:GetPropertyChangedSignal("Text"):Connect(function()
         local text = textBox.Text
@@ -505,14 +601,21 @@ local function createGUI()
     -- UI Scale for mobile devices
     local uiScale = Instance.new("UIScale")
     uiScale.Parent = screenGui
+    
+    -- Adjust UI scale based on device type
     if UserInputService.TouchEnabled then
-        uiScale.Scale = 0.75
+        uiScale.Scale = 0.8 -- 20% reduction for mobile
+    else
+        uiScale.Scale = 1.0 -- Full size for PC
     end
 
     -- Main Frame with improved visibility
+    local baseSize = UserInputService.TouchEnabled and 400 or 500
+    local baseHeight = UserInputService.TouchEnabled and 500 or 600
+    
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 500, 0, 600)
-    mainFrame.Position = UDim2.new(0.5, -250, 0.5, -300)
+    mainFrame.Size = UDim2.new(0, baseSize, 0, baseHeight)
+    mainFrame.Position = UDim2.new(0.5, -baseSize/2, 0.5, -baseHeight/2)
     mainFrame.BackgroundColor3 = theme.background
     mainFrame.BorderSizePixel = 0
     mainFrame.ClipsDescendants = true
@@ -524,7 +627,7 @@ local function createGUI()
     
     -- Header with shadow effect
     local header = Instance.new("Frame")
-    header.Size = UDim2.new(1, 0, 0, 120)
+    header.Size = UDim2.new(1, 0, 0, 100)
     header.BackgroundColor3 = theme.logoBackground
     header.BorderSizePixel = 0
     header.Parent = mainFrame
@@ -534,9 +637,10 @@ local function createGUI()
     headerCorner.Parent = header
 
     -- Logo container with improved visibility
+    local logoSize = UserInputService.TouchEnabled and 80 or 100
     local logoContainer = Instance.new("Frame")
-    logoContainer.Size = UDim2.new(0, 100, 0, 100)
-    logoContainer.Position = UDim2.new(0.5, -50, 0.5, -50)
+    logoContainer.Size = UDim2.new(0, logoSize, 0, logoSize)
+    logoContainer.Position = UDim2.new(0.5, -logoSize/2, 0.5, -logoSize/2)
     logoContainer.BackgroundColor3 = theme.logoBackground
     logoContainer.Parent = header
     
@@ -546,40 +650,40 @@ local function createGUI()
 
     local logo = Instance.new("ImageLabel")
     logo.Image = "rbxassetid://109421193232034"
-    logo.Size = UDim2.new(0, 90, 0, 90)
-    logo.Position = UDim2.new(0.5, -45, 0.5, -45)
+    logo.Size = UDim2.new(0, logoSize-10, 0, logoSize-10)
+    logo.Position = UDim2.new(0.5, -(logoSize-10)/2, 0.5, -(logoSize-10)/2)
     logo.BackgroundTransparency = 1
     logo.Parent = logoContainer
 
     -- Title with improved text rendering
     local title = Instance.new("TextLabel")
     title.Text = "MOLYN FREE"
-    title.Size = UDim2.new(1, 0, 0, 40)
-    title.Position = UDim2.new(0, 0, 0, 130)
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.Position = UDim2.new(0, 0, 0, 110)
     title.BackgroundTransparency = 1
     title.TextColor3 = theme.primary
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 24
+    title.TextSize = UserInputService.TouchEnabled and 20 or 24
     title.TextStrokeTransparency = 0.8
     title.TextStrokeColor3 = Color3.new(0, 0, 0)
     title.Parent = mainFrame
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v5.2"
+    subtitle.Text = "Public SCRIPT HUB | v5.7"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
-    subtitle.Position = UDim2.new(0, 0, 0, 160)
+    subtitle.Position = UDim2.new(0, 0, 0, 140)
     subtitle.BackgroundTransparency = 1
     subtitle.TextColor3 = theme.textSecondary
     subtitle.Font = Enum.Font.Gotham
-    subtitle.TextSize = 14
+    subtitle.TextSize = UserInputService.TouchEnabled and 12 or 14
     subtitle.Parent = mainFrame
 
     -- Close Button with hover effect
     local closeBtn = Instance.new("TextButton")
     closeBtn.Text = "X"
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -40, 0, 10)
+    closeBtn.Size = UDim2.new(0, 25, 0, 25)
+    closeBtn.Position = UDim2.new(1, -35, 0, 10)
     closeBtn.BackgroundColor3 = theme.closeButton
     closeBtn.TextColor3 = theme.text
     closeBtn.Font = Enum.Font.GothamBold
@@ -600,7 +704,7 @@ local function createGUI()
     -- Tab Buttons
     local tabsFrame = Instance.new("Frame")
     tabsFrame.Size = UDim2.new(1, -20, 0, 30)
-    tabsFrame.Position = UDim2.new(0, 10, 0, 190)
+    tabsFrame.Position = UDim2.new(0, 10, 0, 170)
     tabsFrame.BackgroundTransparency = 1
     tabsFrame.Parent = mainFrame
     
@@ -611,7 +715,7 @@ local function createGUI()
     scriptsTab.BackgroundColor3 = theme.primary
     scriptsTab.TextColor3 = theme.text
     scriptsTab.Font = Enum.Font.GothamBold
-    scriptsTab.TextSize = 14
+    scriptsTab.TextSize = UserInputService.TouchEnabled and 12 or 14
     scriptsTab.Parent = tabsFrame
     
     local feedbackTab = Instance.new("TextButton")
@@ -621,7 +725,7 @@ local function createGUI()
     feedbackTab.BackgroundColor3 = theme.surface
     feedbackTab.TextColor3 = theme.text
     feedbackTab.Font = Enum.Font.GothamBold
-    feedbackTab.TextSize = 14
+    feedbackTab.TextSize = UserInputService.TouchEnabled and 12 or 14
     feedbackTab.Parent = tabsFrame
     
     local tabCorner = Instance.new("UICorner")
@@ -631,8 +735,8 @@ local function createGUI()
     
     -- Content Area
     local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -20, 1, -240)
-    contentFrame.Position = UDim2.new(0, 10, 0, 230)
+    contentFrame.Size = UDim2.new(1, -20, 1, -210)
+    contentFrame.Position = UDim2.new(0, 10, 0, 210)
     contentFrame.BackgroundTransparency = 1
     contentFrame.ClipsDescendants = true
     contentFrame.Parent = mainFrame
@@ -652,6 +756,43 @@ local function createGUI()
     layout.Padding = UDim.new(0, 10)
     layout.Parent = scriptsFrame
 
+    -- Search Bar
+    local searchBar = Instance.new("Frame")
+    searchBar.Size = UDim2.new(1, 0, 0, 40)
+    searchBar.BackgroundColor3 = theme.surface
+    searchBar.Parent = scriptsFrame
+    
+    local searchCorner = Instance.new("UICorner")
+    searchCorner.CornerRadius = UDim.new(0, 8)
+    searchCorner.Parent = searchBar
+    
+    local searchBox = Instance.new("TextBox")
+    searchBox.PlaceholderText = "ابحث عن سكربت..."
+    searchBox.Size = UDim2.new(1, -20, 0.8, 0)
+    searchBox.Position = UDim2.new(0, 10, 0.1, 0)
+    searchBox.BackgroundColor3 = theme.background
+    searchBox.TextColor3 = theme.text
+    searchBox.Font = Enum.Font.Gotham
+    searchBox.TextSize = UserInputService.TouchEnabled and 14 or 16
+    searchBox.TextXAlignment = Enum.TextXAlignment.Left
+    searchBox.ClearTextOnFocus = false
+    searchBox.Text = ""
+    searchBox.Parent = searchBar
+    
+    local searchIcon = Instance.new("TextLabel")
+    searchIcon.Text = "🔍"
+    searchIcon.Size = UDim2.new(0, 30, 0, 30)
+    searchIcon.Position = UDim2.new(1, -40, 0.1, 0)
+    searchIcon.BackgroundTransparency = 1
+    searchIcon.TextColor3 = theme.textSecondary
+    searchIcon.Font = Enum.Font.Gotham
+    searchIcon.TextSize = 16
+    searchIcon.Parent = searchBar
+    
+    local boxCorner = Instance.new("UICorner")
+    boxCorner.CornerRadius = UDim.new(0, 6)
+    boxCorner.Parent = searchBox
+    
     -- Feedback Container (initially hidden)
     local feedbackFrame = CreateFeedbackUI(contentFrame)
     feedbackFrame.Visible = false
@@ -672,12 +813,15 @@ local function createGUI()
     end)
 
     -- Create Script Buttons with improved visuals
+    local scriptButtons = {}
+    
     local function createScriptButton(scriptData)
         local btn = Instance.new("Frame")
-        btn.Size = UDim2.new(1, 0, 0, 80)
+        btn.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 70 or 80)
         btn.BackgroundColor3 = theme.surface
         btn.Parent = scriptsFrame
         btn.Name = scriptData.name
+        btn.Visible = true
 
         local btnCorner = Instance.new("UICorner")
         btnCorner.CornerRadius = UDim.new(0, 8)
@@ -686,12 +830,12 @@ local function createGUI()
         -- Script Name with improved visibility
         local name = Instance.new("TextLabel")
         name.Text = scriptData.name
-        name.Size = UDim2.new(0.7, 0, 0, 30)
+        name.Size = UDim2.new(0.7, 0, 0, 25)
         name.Position = UDim2.new(0, 15, 0, 10)
         name.BackgroundTransparency = 1
         name.TextColor3 = scriptData.featured and theme.primary or theme.text
         name.Font = Enum.Font.GothamBold
-        name.TextSize = 18
+        name.TextSize = UserInputService.TouchEnabled and 16 or 18
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextStrokeTransparency = 0.8
         name.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -700,23 +844,24 @@ local function createGUI()
         -- Description
         local desc = Instance.new("TextLabel")
         desc.Text = scriptData.description
-        desc.Size = UDim2.new(0.7, 0, 0, 20)
-        desc.Position = UDim2.new(0, 15, 0, 40)
+        desc.Size = UDim2.new(0.7, 0, 0, 15)
+        desc.Position = UDim2.new(0, 15, 0, 35)
         desc.BackgroundTransparency = 1
         desc.TextColor3 = theme.textSecondary
         desc.Font = Enum.Font.Gotham
-        desc.TextSize = 14
+        desc.TextSize = UserInputService.TouchEnabled and 12 or 14
         desc.TextXAlignment = Enum.TextXAlignment.Left
         desc.Parent = btn
 
         -- Execute Button with improved interaction
         local execBtn = Instance.new("TextButton")
         execBtn.Text = "EXECUTE"
-        execBtn.Size = UDim2.new(0, 100, 0, 30)
-        execBtn.Position = UDim2.new(1, -120, 0.5, -15)
+        execBtn.Size = UDim2.new(0, UserInputService.TouchEnabled and 80 or 100, 0, UserInputService.TouchEnabled and 25 or 30)
+        execBtn.Position = UDim2.new(1, UserInputService.TouchEnabled and -90 or -120, 0.5, UserInputService.TouchEnabled and -12.5 or -15)
         execBtn.BackgroundColor3 = theme.primary
         execBtn.TextColor3 = theme.text
         execBtn.Font = Enum.Font.GothamBold
+        execBtn.TextSize = UserInputService.TouchEnabled and 12 or 14
         execBtn.Parent = btn
 
         local execCorner = Instance.new("UICorner")
@@ -732,9 +877,9 @@ local function createGUI()
         end)
 
         execBtn.MouseButton1Click:Connect(function()
-            TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, 95, 0, 28)}):Play()
+            TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, execBtn.Size.X.Offset - 5, 0, execBtn.Size.Y.Offset - 2)}):Play()
             wait(0.1)
-            TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, 100, 0, 30)}):Play()
+            TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, execBtn.Size.X.Offset + 5, 0, execBtn.Size.Y.Offset + 2)}):Play()
             
             local success, err = pcall(function()
                 loadstring(scriptData.code)()
@@ -759,7 +904,7 @@ local function createGUI()
                         }
                     }}
                 }
-                SendWebhook(jeneL, data)
+                SendWebhook(DISCORD_WEBHOOK_URL, data)
             else
                 CreateNotification("Failed: "..scriptData.name, theme.error, 3)
                 warn("Execution error:", err)
@@ -769,8 +914,8 @@ local function createGUI()
         -- Featured Badge with animation
         if scriptData.featured then
             local badge = Instance.new("Frame")
-            badge.Size = UDim2.new(0, 80, 0, 20)
-            badge.Position = UDim2.new(1, -230, 0, 10)
+            badge.Size = UDim2.new(0, UserInputService.TouchEnabled and 60 or 80, 0, 20)
+            badge.Position = UDim2.new(1, UserInputService.TouchEnabled and -160 or -230, 0, 10)
             badge.BackgroundColor3 = theme.accent
             badge.Parent = btn
 
@@ -784,7 +929,7 @@ local function createGUI()
             badgeText.BackgroundTransparency = 1
             badgeText.TextColor3 = theme.text
             badgeText.Font = Enum.Font.GothamBold
-            badgeText.TextSize = 10
+            badgeText.TextSize = UserInputService.TouchEnabled and 8 or 10
             badgeText.Parent = badge
 
             spawn(function()
@@ -796,7 +941,38 @@ local function createGUI()
                 end
             end)
         end
+        
+        table.insert(scriptButtons, {
+            frame = btn,
+            name = scriptData.name:lower(),
+            desc = scriptData.description:lower()
+        })
+        
+        return btn
     end
+
+    -- Search functionality
+    local function updateSearchResults(searchText)
+        local searchLower = searchText:lower()
+        
+        for _, buttonData in ipairs(scriptButtons) do
+            local visible = false
+            
+            if searchText == "" then
+                visible = true
+            else
+                if buttonData.name:find(searchLower) or buttonData.desc:find(searchLower) then
+                    visible = true
+                end
+            end
+            
+            buttonData.frame.Visible = visible
+        end
+    end
+    
+    searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        updateSearchResults(searchBox.Text)
+    end)
 
     -- Populate Scripts with sorting
     local function sortScripts(a, b)
@@ -856,8 +1032,8 @@ local function createGUI()
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     
     TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 500, 0, 600),
-        Position = UDim2.new(0.5, -250, 0.5, -300)
+        Size = UDim2.new(0, baseSize, 0, baseHeight),
+        Position = UDim2.new(0.5, -baseSize/2, 0.5, -baseHeight/2)
     }):Play()
 
     return screenGui
