@@ -517,7 +517,7 @@ local function CreateFeedbackUI(parent)
     
     -- Credits
     local credits = Instance.new("TextLabel")
-    credits.Text = "Credits:\nمحمد / coc*_****5"
+    credits.Text = "Credits:\n محمد / coc*_****5"
     credits.Size = UDim2.new(1, -20, 0, 40)
     credits.Position = UDim2.new(0, 10, 1, -50)
     credits.BackgroundTransparency = 1
@@ -604,7 +604,7 @@ local function createGUI()
     
     -- Adjust UI scale based on device type
     if UserInputService.TouchEnabled then
-        uiScale.Scale = 0.8 -- 20% reduction for mobile
+        uiScale.Scale = 0.6 -- 20% reduction for mobile
     else
         uiScale.Scale = 1.0 -- Full size for PC
     end
@@ -689,7 +689,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v5.8"
+    subtitle.Text = "Public SCRIPT HUB | v6.1"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 140)
     subtitle.BackgroundTransparency = 1
