@@ -2,13 +2,13 @@
   MOLYN SCRIPT HUB
   Company: MOLYN DEVELOPMENT
   Creator: MOHAMMED
-  Version: 5.7
+  Version: 5.9
   Premium UI Script Hub
   Features:
-  - واجهة متكاملة سهلة الاستخدام
-  - دعم للهواتف والحواسب
-  - نظام حماية متقدم
-  - شريط بحث للوصول السريع
+  - Fully English interface
+  - Mobile and PC support
+  - Advanced security system
+  - Script search functionality
 ]]
 
 -- Services
@@ -27,10 +27,6 @@ local TextService = game:GetService("TextService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Webhook configuration
-local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/iXggOTjgDBm5RhygIozJyBvjmDMktVcKDvdf1OnccwhBMQeiObxk4vnp8x6XczX8mSCD"
-local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1390644943109750834/usIWKQH7mVQkZFnd6rJ9GrDCzzpaKOB0PjG0C9Zb53xcmXj5MKXbRcZSRLc-q1YzNZyO"
-
 -- Security system
 local BLACKLIST = {
     ["."] = "You are banned from using this script",
@@ -43,7 +39,7 @@ local BLACKLIST = {
 }
 
 -- Warning list
-local WARNING_LIST = "⚠️ don't trust/لا تثق ⚠️: zaman544 % Fffgftgggf1 % moen1234567891 % ONIRYTC"
+local WARNING_LIST = "⚠️ don't trust ⚠️: zaman544 % Fffgftgggf1 % moen1234567891 % ONIRYTC"
 
 -- Feedback system
 local FEEDBACK_COOLDOWN = 120
@@ -209,9 +205,6 @@ local scriptsDatabase = {
     }
 }
 
--- HTTP request function for all executors
-local http_request = (syn and syn.request) or (http and http.request) or (http_request) or (request) or (httprequest) or (fluxus and fluxus.request)
-
 -- Create notification function
 local function CreateNotification(text, color, duration)
     local gui = Instance.new("ScreenGui")
@@ -313,100 +306,6 @@ local function ActivateAntiSpam()
     end
 end
 
--- Webhook sender
-local function SendWebhook(url, data)
-    if not http_request then 
-        warn("HTTP request function not available")
-        return false
-    end
-    
-    data["username"] = "SPY BOT"
-    data["avatar_url"] = "https://imgur.com/gallery/spy-bot-vytTqYx#mvMLTNn"
-    
-    local success, response = pcall(function()
-        local response = http_request({
-            Url = url,
-            Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
-            Body = HttpService:JSONEncode(data)
-        })
-        return response
-    end)
-    
-    if not success then
-        warn("Failed to send webhook:", response)
-        return false
-    end
-    
-    return true
-end
-
--- Account age check
-local function GetAccountAge()
-    local success, age = pcall(function()
-        return player.AccountAge
-    end)
-    return success and age or "Unknown"
-end
-
--- Special user handling
-local function HandleSpecialUser()
-    if player.Name == "coco_w12345" then
-        return {
-            ["content"] = "MOLYN HUB ACTIVATED BY MOLYN CREATOR",
-            ["embeds"] = {{
-                ["title"] = "Player Monitoring Data",
-                ["description"] = "MOLYN CREATOR has joined!",
-                ["color"] = 14423100,
-                ["fields"] = {
-                    {["name"] = "👤 Player", ["value"] = "MOLYN CREATOR", ["inline"] = true},
-                    {["name"] = "🎮 Game", ["value"] = "Roblox", ["inline"] = true},
-                    {["name"] = "⚙️ Executor", ["value"] = "العميل موزة", ["inline"] = true},
-                    {["name"] = "📅 Account Age", ["value"] = "99999999 days", ["inline"] = true},
-                    {["name"] = "🕒 Time", ["value"] = "UNKNOWN", ["inline"] = true}
-                }
-            }}
-        }
-    end
-    return nil
-end
-
--- Monitoring system
-local function SendMonitoringData()
-    local specialData = HandleSpecialUser()
-    if specialData then
-        SendWebhook(DISCORD_WEBHOOK_URL, specialData)
-        return
-    end
-
-    local executor = identifyexecutor() or "Unknown"
-    local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-    local accountAge = GetAccountAge()
-    
-    local data = {
-        ["content"] = "MOLYN HUB ACTIVATED",
-        ["embeds"] = {{
-            ["title"] = "Player Monitoring Data",
-            ["description"] = "New script activation detected",
-            ["color"] = 14423100,
-            ["fields"] = {
-                {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
-                {["name"] = "🎮 Game", ["value"] = gameName, ["inline"] = true},
-                {["name"] = "⚙️ Executor", ["value"] = executor, ["inline"] = true},
-                {["name"] = "📅 Account Age", ["value"] = accountAge.." days", ["inline"] = true},
-                {["name"] = "🕒 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
-            }
-        }}
-    }
-    
-    local success = SendWebhook(DISCORD_WEBHOOK_URL, data)
-    if not success then
-        CreateNotification("Failed to send monitoring data", theme.error, 5)
-    end
-end
-
 -- Feedback UI
 local function CreateFeedbackUI(parent)
     local feedbackFrame = Instance.new("Frame")
@@ -453,9 +352,9 @@ local function CreateFeedbackUI(parent)
     discordButton.MouseButton1Click:Connect(function()
         if setclipboard then
             setclipboard("https://discord.gg/zvnNwE3KWd")
-            CreateNotification("تم نسخ رابط الديسكورد!", theme.success, 3)
+            CreateNotification("Discord link copied!", theme.success, 3)
         else
-            CreateNotification("لا يمكن نسخ الرابط في هذا الإكسكيوتور", theme.error, 3)
+            CreateNotification("Cannot copy link in this executor", theme.error, 3)
         end
     end)
     
@@ -517,7 +416,7 @@ local function CreateFeedbackUI(parent)
     
     -- Credits
     local credits = Instance.new("TextLabel")
-    credits.Text = "Credits:\nمحمد / coc*_****5"
+    credits.Text = "Credits:\nMOHAMMED / coc*_****5"
     credits.Size = UDim2.new(1, -20, 0, 40)
     credits.Position = UDim2.new(0, 10, 1, -50)
     credits.BackgroundTransparency = 1
@@ -549,28 +448,9 @@ local function CreateFeedbackUI(parent)
             return
         end
         
-        local data = {
-            ["content"] = "New Feedback Received",
-            ["embeds"] = {{
-                ["title"] = "User Feedback",
-                ["description"] = feedbackText,
-                ["color"] = 14423100,
-                ["fields"] = {
-                    {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
-                    {["name"] = "🎮 Game", ["value"] = MarketplaceService:GetProductInfo(game.PlaceId).Name, ["inline"] = true},
-                    {["name"] = "🕒 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
-                }
-            }}
-        }
-        
-        local success = SendWebhook(FEEDBACK_WEBHOOK_URL, data)
-        if success then
-            CreateNotification("Feedback sent successfully!", theme.success, 3)
-            textBox.Text = ""
-            lastFeedbackTime = currentTime
-        else
-            CreateNotification("Failed to send feedback", theme.error, 3)
-        end
+        CreateNotification("Thank you for your feedback!", theme.success, 3)
+        textBox.Text = ""
+        lastFeedbackTime = currentTime
     end)
     
     return feedbackFrame
@@ -670,7 +550,7 @@ local function createGUI()
 
     -- Subtitle
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v5.7"
+    subtitle.Text = "Public SCRIPT HUB | v5.9"
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 140)
     subtitle.BackgroundTransparency = 1
@@ -767,7 +647,7 @@ local function createGUI()
     searchCorner.Parent = searchBar
     
     local searchBox = Instance.new("TextBox")
-    searchBox.PlaceholderText = "ابحث عن سكربت..."
+    searchBox.PlaceholderText = "Search scripts..."
     searchBox.Size = UDim2.new(1, -20, 0.8, 0)
     searchBox.Position = UDim2.new(0, 10, 0.1, 0)
     searchBox.BackgroundColor3 = theme.background
@@ -887,24 +767,6 @@ local function createGUI()
             
             if success then
                 CreateNotification("Executed: "..scriptData.name, theme.success, 3)
-                
-                -- Send execution data to webhook
-                local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-                local data = {
-                    ["content"] = "Script Executed",
-                    ["embeds"] = {{
-                        ["title"] = "Script Execution",
-                        ["description"] = "Player executed a script from MOLYN HUB",
-                        ["color"] = 14423100,
-                        ["fields"] = {
-                            {["name"] = "📜 Script", ["value"] = scriptData.name, ["inline"] = true},
-                            {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
-                            {["name"] = "🎮 Game", ["value"] = gameName, ["inline"] = true},
-                            {["name"] = "📅 Time", ["value"] = os.date("%X - %d/%m/%Y"), ["inline"] = true}
-                        }
-                    }}
-                }
-                SendWebhook(DISCORD_WOOK_URL, data)
             else
                 CreateNotification("Failed: "..scriptData.name, theme.error, 3)
                 warn("Execution error:", err)
@@ -1051,12 +913,6 @@ local function Initialize()
 
     -- Activate anti-spam system
     ActivateAntiSpam()
-
-    -- Send monitoring data
-    local success, err = pcall(SendMonitoringData)
-    if not success then
-        warn("Failed to send monitoring data:", err)
-    end
 
     -- Create initial notification
     CreateNotification("MOLYN HUB LOADED", theme.primary, 3)
