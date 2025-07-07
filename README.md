@@ -33,7 +33,7 @@ local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/13906449431097508
 
 -- Security system
 local BLACKLIST = {
-    ["."] = "You are banned from using this script",
+    ["haider123_kill1"] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
