@@ -595,7 +595,7 @@ local function createGUI()
     
     -- Adjust UI scale based on device type
     if UserInputService.TouchEnabled then
-        uiScale.Scale = 0.8 -- 20% reduction for mobile
+        uiScale.Scale = 0.9 -- 20% reduction for mobile
     else
         uiScale.Scale = 1.0 -- Full size for PC
     end
