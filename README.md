@@ -2,13 +2,13 @@
   MOLYN SCRIPT HUB
   Company: MOLYN DEVELOPMENT
   Creator: MOHAMMED
-  Version: 5.8
+  Version: 6.1
   Premium UI Script Hub
   Features:
-  - Responsive UI with proper margins
-  - Mobile and desktop support
-  - Advanced security system
-  - Script search functionality
+  - نظام Featured Scripts ثابت في أعلى القائمة
+  - واجهة مستخدم متجاوبة
+  - دعم للهواتف والحواسب
+  - نظام حماية متقدم
 ]]
 
 -- Services
@@ -33,7 +33,7 @@ local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/13906449431097508
 
 -- Security system
 local BLACKLIST = {
-    ["haider123_kill1"] = "نيج امك من وره ومن كدام واصعدها اعدام واحط بكوسها مسطره ودزتت اقلام واخليها تعترف بنياجها زعيم الظلام الي ناجها بالحلام وطشر ع كسها الجام واحط بطيزها زوج حمام وظربها بعير عادل امام خلي ع كسها اقوه من الدمام",
+    ["."] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
@@ -68,20 +68,19 @@ local theme = {
 }
 
 -- Scripts database
-local scriptsDatabase = {
+local SCRIPTS_DATABASE = {
     {
         name = "MM2 & Flee the Facility OP",
         description = "OP Features like aimbot and auto shot for mm2 and more",
         category = "Game",
         code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua", false))()]],
-        featured = true
+        featuredIn = {"142823291", "893973440"} -- MM2 and Flee the Facility
     },
     {
         name = "backdoor.exe",
         description = "backdoor scanner",
         category = "Utility",
-        code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Backdoor-exe-9413"))()]],
-        featured = true
+        code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Backdoor-exe-9413"))()]]
     },
     {
         name = "INFINITE MONEY eight driver",
@@ -95,43 +94,38 @@ local scriptsDatabase = {
             local A_4 = {}
             local Event = game:GetService("ReplicatedStorage").RemoteEvent
             Event:FireServer(A_1, A_2, A_3, A_4)
-        ]],
-        featured = true
+        ]]
     },
     {
         name = "MOLYN Spammer",
         description = "commands spammer script",
         category = "spam",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lakany/Molyn-spammer/main/Molyn%20spammer'))()]],
-        featured = true
+        featuredIn = {"12957268429"} -- Default featured
     },
     {
         name = "Infinite Yield",
         description = "Advanced admin commands script",
         category = "Admin",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()]],
-        featured = true
+        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()]]
     },
     {
         name = "MOLYN TROLL CLONE TOWER",
         description = "Teleport to win and sabotage and get clones",
         category = "Trolling",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/6PC6EfqK"))()]],
-        featured = true
+        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/6PC6EfqK"))()]]
     },
     {
         name = "LAG TEST",
         description = "Delete parts in LAG TEST map",
         category = "delete",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/xrZRud3e"))()]],
-        featured = true
+        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/xrZRud3e"))()]]
     },
     {
         name = "Nameless Admin",
         description = "Powerful admin commands script",
         category = "Admin",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]],
-        featured = true
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]]
     },
     {
         name = "Unban VC",
@@ -150,49 +144,46 @@ local scriptsDatabase = {
                 })
             end
         ]],
-        featured = false
+        featuredIn = {"12957268429"} -- Default featured
     },
     {
         name = "vfly molyn",
         description = "Fly with car or without (in maintenance)",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
-        featured = true
+        featuredIn = {"2753915549", "891852901", "893973440"} -- Blox Fruits, Greenville, Flee the Facility
     },
     {
         name = "virtual keyboard",
         description = "you can press keys like pc or laptop",
         category = "Movement",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]],
-        featured = false
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]]
     },
     {
         name = "MOLYN cmdbar",
         description = "spam commands in chat or something in chat",
         category = "spam",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/Uwu54JfE"))()]],
-        featured = true
+        featuredIn = {"12957268429"} -- Default featured
     },
     {
         name = "Simple Spy",
         description = "Remote spy for debugging",
         category = "Developer",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua'))()]],
-        featured = false
+        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua'))()]]
     },
     {
         name = "MOLYN UNIVERSAL",
         description = "universal features like fly.noclip.etc",
         category = "Visual",
-        code = [[loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()]],
-        featured = true
+        code = [[loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()]]
     },
     {
         name = "Greenville OP",
         description = "Car modification like speed and turbo and more",
         category = "Vehicle",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lugtastic/hubs/main/EcuX-V2.lua',true))()]],
-        featured = true
+        featuredIn = {"891852901", "893973440"} -- Greenville and Flee the Facility
     },
     {
         name = "Redz Blox Fruits",
@@ -205,7 +196,7 @@ local scriptsDatabase = {
             }
             loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
         ]],
-        featured = true
+        featuredIn = {"2753915549"} -- Blox Fruits
     }
 }
 
@@ -517,7 +508,7 @@ local function CreateFeedbackUI(parent)
     
     -- Credits
     local credits = Instance.new("TextLabel")
-    credits.Text = "Credits:\n محمد / coc*_****5"
+    credits.Text = "Credits:\nمحمد / coc*_****5"
     credits.Size = UDim2.new(1, -20, 0, 40)
     credits.Position = UDim2.new(0, 10, 1, -50)
     credits.BackgroundTransparency = 1
@@ -604,7 +595,7 @@ local function createGUI()
     
     -- Adjust UI scale based on device type
     if UserInputService.TouchEnabled then
-        uiScale.Scale = 0.6 -- 20% reduction for mobile
+        uiScale.Scale = 0.8 -- 20% reduction for mobile
     else
         uiScale.Scale = 1.0 -- Full size for PC
     end
@@ -687,9 +678,10 @@ local function createGUI()
     title.TextStrokeColor3 = Color3.new(0, 0, 0)
     title.Parent = mainFrame
 
-    -- Subtitle
+    -- Subtitle with game name
+    local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v6.1"
+    subtitle.Text = "Public SCRIPT HUB | v6.1 | "..gameName
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, 140)
     subtitle.BackgroundTransparency = 1
@@ -831,10 +823,41 @@ local function createGUI()
         feedbackFrame.Visible = true
     end)
 
+    -- Get current game ID
+    local currentGameId = tostring(game.PlaceId)
+    
+    -- Create two separate lists: featured and regular scripts
+    local featuredScripts = {}
+    local regularScripts = {}
+    
+    for _, script in ipairs(SCRIPTS_DATABASE) do
+        local isFeatured = false
+        
+        -- Check if script is featured in current game
+        if script.featuredIn then
+            for _, gameId in ipairs(script.featuredIn) do
+                if gameId == currentGameId then
+                    isFeatured = true
+                    break
+                end
+            end
+        end
+        
+        if isFeatured then
+            table.insert(featuredScripts, script)
+        else
+            table.insert(regularScripts, script)
+        end
+    end
+    
+    -- Sort both lists alphabetically
+    table.sort(featuredScripts, function(a, b) return a.name < b.name end)
+    table.sort(regularScripts, function(a, b) return a.name < b.name end)
+    
     -- Create Script Buttons with improved visuals
     local scriptButtons = {}
     
-    local function createScriptButton(scriptData)
+    local function createScriptButton(scriptData, isFeatured)
         local btn = Instance.new("Frame")
         btn.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 70 or 80)
         btn.BackgroundColor3 = theme.surface
@@ -852,7 +875,7 @@ local function createGUI()
         name.Size = UDim2.new(0.7, 0, 0, 25)
         name.Position = UDim2.new(0, 15, 0, 10)
         name.BackgroundTransparency = 1
-        name.TextColor3 = scriptData.featured and theme.primary or theme.text
+        name.TextColor3 = isFeatured and theme.primary or theme.text
         name.Font = Enum.Font.GothamBold
         name.TextSize = UserInputService.TouchEnabled and 16 or 18
         name.TextXAlignment = Enum.TextXAlignment.Left
@@ -913,7 +936,7 @@ local function createGUI()
         end)
 
         -- Featured Badge with animation
-        if scriptData.featured then
+        if isFeatured then
             local badge = Instance.new("Frame")
             badge.Size = UDim2.new(0, UserInputService.TouchEnabled and 60 or 80, 0, 20)
             badge.Position = UDim2.new(1, UserInputService.TouchEnabled and -160 or -230, 0, 10)
@@ -952,6 +975,16 @@ local function createGUI()
         return btn
     end
 
+    -- First, create featured scripts
+    for _, script in ipairs(featuredScripts) do
+        createScriptButton(script, true)
+    end
+    
+    -- Then, create regular scripts
+    for _, script in ipairs(regularScripts) do
+        createScriptButton(script, false)
+    end
+
     -- Search functionality
     local function updateSearchResults(searchText)
         local searchLower = searchText:lower()
@@ -974,19 +1007,6 @@ local function createGUI()
     searchBox:GetPropertyChangedSignal("Text"):Connect(function()
         updateSearchResults(searchBox.Text)
     end)
-
-    -- Populate Scripts with sorting
-    local function sortScripts(a, b)
-        if a.featured and not b.featured then return true end
-        if not a.featured and b.featured then return false end
-        return a.name < b.name
-    end
-    
-    table.sort(scriptsDatabase, sortScripts)
-    
-    for _, script in ipairs(scriptsDatabase) do
-        createScriptButton(script)
-    end
 
     -- Fix scrolling issue
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
