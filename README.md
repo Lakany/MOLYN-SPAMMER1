@@ -2,13 +2,13 @@
   MOLYN SCRIPT HUB
   Company: MOLYN DEVELOPMENT
   Creator: MOHAMMED
-  Version: 6.1
+  Version: 6.6
   Premium UI Script Hub
   Features:
-  - نظام Featured Scripts ثابت في أعلى القائمة
-  - واجهة مستخدم متجاوبة
-  - دعم للهواتف والحواسب
-  - نظام حماية متقدم
+  - واجهة متكاملة متجاوبة مع جميع أحجام الشاشات
+  - نظام سحب للواجهة (Draggable)
+  - حجم تلقائي مثالي لكل جهاز
+  - تصميم عصري مع إمكانية التمرير
 ]]
 
 -- Services
@@ -107,7 +107,8 @@ local SCRIPTS_DATABASE = {
         name = "Infinite Yield",
         description = "Advanced admin commands script",
         category = "Admin",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()]]
+        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()]],
+        featuredIn = {"default"} -- Default featured
     },
     {
         name = "MOLYN TROLL CLONE TOWER",
@@ -125,7 +126,8 @@ local SCRIPTS_DATABASE = {
         name = "Nameless Admin",
         description = "Powerful admin commands script",
         category = "Admin",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]]
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]],
+        featuredIn = {"default"} -- Default featured
     },
     {
         name = "Unban VC",
@@ -144,20 +146,21 @@ local SCRIPTS_DATABASE = {
                 })
             end
         ]],
-        featuredIn = {"12957268429"} -- Default featured
+        featuredIn = {"default"} -- Default featured
     },
     {
         name = "vfly molyn",
         description = "Fly with car or without (in maintenance)",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
-        featuredIn = {"2753915549", "891852901", "893973440"} -- Blox Fruits, Greenville, Flee the Facility
+        featuredIn = {"default"} -- Default featured
     },
     {
         name = "virtual keyboard",
         description = "you can press keys like pc or laptop",
         category = "Movement",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]]
+        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]],
+        featuredIn = {"default"} -- Default featured
     },
     {
         name = "MOLYN cmdbar",
@@ -364,7 +367,63 @@ local function HandleSpecialUser()
     return nil
 end
 
--- Monitoring system
+-- نظام Featured Scripts المحدث والمحسن
+local function GetFeaturedScripts(currentGameId)
+    local defaultFeatured = {
+        "vfly molyn",
+        "Nameless Admin",
+        "Unban VC",
+        "virtual keyboard"
+    }
+    
+    local featuredScripts = {}
+    local regularScripts = {}
+    local isGameSupported = false
+    
+    -- التحقق مما إذا كانت اللعبة مدعومة
+    for _, script in ipairs(SCRIPTS_DATABASE) do
+        if script.featuredIn then
+            for _, gameId in ipairs(script.featuredIn) do
+                if gameId == currentGameId and gameId ~= "default" then
+                    isGameSupported = true
+                    break
+                end
+            end
+            if isGameSupported then break end
+        end
+    end
+    
+    for _, script in ipairs(SCRIPTS_DATABASE) do
+        local isFeatured = false
+        
+        -- إذا كانت اللعبة غير مدعومة، استخدم القائمة الافتراضية
+        if not isGameSupported then
+            if table.find(defaultFeatured, script.name) then
+                isFeatured = true
+            end
+        else
+            -- إذا كانت اللعبة مدعومة، تحقق من النصوص المميزة لهذه اللعبة
+            if script.featuredIn then
+                for _, gameId in ipairs(script.featuredIn) do
+                    if gameId == currentGameId then
+                        isFeatured = true
+                        break
+                    end
+                end
+            end
+        end
+        
+        if isFeatured then
+            table.insert(featuredScripts, script)
+        else
+            table.insert(regularScripts, script)
+        end
+    end
+    
+    return featuredScripts, regularScripts
+end
+
+-- Monitoring system with fixed player avatar
 local function SendMonitoringData()
     local specialData = HandleSpecialUser()
     if specialData then
@@ -376,12 +435,19 @@ local function SendMonitoringData()
     local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     local accountAge = GetAccountAge()
     
+    -- الحصول على صورة اللاعب بطريقة صحيحة
+    local userId = player.UserId
+    local avatarUrl = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%d&width=420&height=420&format=png", userId)
+    
     local data = {
         ["content"] = "MOLYN HUB ACTIVATED",
         ["embeds"] = {{
             ["title"] = "Player Monitoring Data",
             ["description"] = "New script activation detected",
             ["color"] = 14423100,
+            ["thumbnail"] = {
+                ["url"] = avatarUrl
+            },
             ["fields"] = {
                 {["name"] = "👤 Player", ["value"] = player.Name, ["inline"] = true},
                 {["name"] = "🎮 Game", ["value"] = gameName, ["inline"] = true},
@@ -398,10 +464,10 @@ local function SendMonitoringData()
     end
 end
 
--- Feedback UI
+-- Feedback UI محسن للجوال
 local function CreateFeedbackUI(parent)
     local feedbackFrame = Instance.new("Frame")
-    feedbackFrame.Size = UDim2.new(1, -20, 0, 280)
+    feedbackFrame.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 320 or 280)
     feedbackFrame.Position = UDim2.new(0, 10, 0, 0)
     feedbackFrame.BackgroundColor3 = theme.surface
     feedbackFrame.Parent = parent
@@ -410,15 +476,15 @@ local function CreateFeedbackUI(parent)
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = feedbackFrame
     
-    -- Warning Label
+    -- Warning Label محسن للهواتف
     local warningLabel = Instance.new("TextLabel")
     warningLabel.Text = WARNING_LIST
-    warningLabel.Size = UDim2.new(1, -20, 0, 40)
+    warningLabel.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 60 or 40)
     warningLabel.Position = UDim2.new(0, 10, 0, 10)
     warningLabel.BackgroundColor3 = theme.error
     warningLabel.TextColor3 = theme.text
     warningLabel.Font = Enum.Font.GothamBold
-    warningLabel.TextSize = 12
+    warningLabel.TextSize = UserInputService.TouchEnabled and 10 or 12
     warningLabel.TextWrapped = true
     warningLabel.Parent = feedbackFrame
     
@@ -429,12 +495,12 @@ local function CreateFeedbackUI(parent)
     -- Discord Button
     local discordButton = Instance.new("TextButton")
     discordButton.Text = "JOIN SERVER DISCORD"
-    discordButton.Size = UDim2.new(1, -20, 0, 40)
-    discordButton.Position = UDim2.new(0, 10, 0, 60)
+    discordButton.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 35 or 40)
+    discordButton.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 80 or 60)
     discordButton.BackgroundColor3 = theme.discordBlue
     discordButton.TextColor3 = theme.text
     discordButton.Font = Enum.Font.GothamBold
-    discordButton.TextSize = 16
+    discordButton.TextSize = UserInputService.TouchEnabled and 12 or 16
     discordButton.Parent = feedbackFrame
     
     local discordCorner = Instance.new("UICorner")
@@ -454,23 +520,23 @@ local function CreateFeedbackUI(parent)
     local title = Instance.new("TextLabel")
     title.Text = "Send Feedback"
     title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 10, 0, 110)
+    title.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 125 or 110)
     title.BackgroundTransparency = 1
     title.TextColor3 = theme.primary
     title.Font = Enum.Font.GothamBold
-    title.TextSize = 18
+    title.TextSize = UserInputService.TouchEnabled and 14 or 18
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = feedbackFrame
     
-    -- Feedback Text Box
+    -- Feedback Text Box محسن للهواتف
     local textBox = Instance.new("TextBox")
     textBox.PlaceholderText = "Your feedback (max "..MAX_FEEDBACK_LENGTH.." characters)"
-    textBox.Size = UDim2.new(1, -20, 0, 60)
-    textBox.Position = UDim2.new(0, 10, 0, 140)
+    textBox.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 80 or 60)
+    textBox.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 155 or 140)
     textBox.BackgroundColor3 = theme.background
     textBox.TextColor3 = theme.text
     textBox.Font = Enum.Font.Gotham
-    textBox.TextSize = 14
+    textBox.TextSize = UserInputService.TouchEnabled and 12 or 14
     textBox.TextWrapped = true
     textBox.ClearTextOnFocus = false
     textBox.Text = ""
@@ -484,7 +550,7 @@ local function CreateFeedbackUI(parent)
     local charCount = Instance.new("TextLabel")
     charCount.Text = "0/"..MAX_FEEDBACK_LENGTH
     charCount.Size = UDim2.new(1, -20, 0, 20)
-    charCount.Position = UDim2.new(0, 10, 0, 205)
+    charCount.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 240 or 205)
     charCount.BackgroundTransparency = 1
     charCount.TextColor3 = theme.textSecondary
     charCount.Font = Enum.Font.Gotham
@@ -495,8 +561,8 @@ local function CreateFeedbackUI(parent)
     -- Send Button
     local sendButton = Instance.new("TextButton")
     sendButton.Text = "SEND"
-    sendButton.Size = UDim2.new(0, 100, 0, 30)
-    sendButton.Position = UDim2.new(0.5, -50, 0, 230)
+    sendButton.Size = UDim2.new(0, UserInputService.TouchEnabled and 80 or 100, 0, UserInputService.TouchEnabled and 25 or 30)
+    sendButton.Position = UDim2.new(0.5, UserInputService.TouchEnabled and -40 or -50, 0, UserInputService.TouchEnabled and 270 or 230)
     sendButton.BackgroundColor3 = theme.primary
     sendButton.TextColor3 = theme.text
     sendButton.Font = Enum.Font.GothamBold
@@ -510,7 +576,7 @@ local function CreateFeedbackUI(parent)
     local credits = Instance.new("TextLabel")
     credits.Text = "Credits:\nمحمد / coc*_****5"
     credits.Size = UDim2.new(1, -20, 0, 40)
-    credits.Position = UDim2.new(0, 10, 1, -50)
+    credits.Position = UDim2.new(0, 10, 1, UserInputService.TouchEnabled and -45 or -50)
     credits.BackgroundTransparency = 1
     credits.TextColor3 = theme.textSecondary
     credits.Font = Enum.Font.Gotham
@@ -567,7 +633,7 @@ local function CreateFeedbackUI(parent)
     return feedbackFrame
 end
 
--- Main GUI creation
+-- Main GUI creation with perfect size for all devices
 local function createGUI()
     -- Wait for game to load completely
     if not game:IsLoaded() then
@@ -586,46 +652,54 @@ local function createGUI()
     screenGui.Name = "MOLYN_HUB"
     screenGui.ResetOnSpawn = false
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    screenGui.DisplayOrder = 999  -- Ensure it's on top
+    screenGui.DisplayOrder = 999
     screenGui.Parent = coreGui
     
-    -- UI Scale for mobile devices
-    local uiScale = Instance.new("UIScale")
-    uiScale.Parent = screenGui
-    
-    -- Adjust UI scale based on device type
-    if UserInputService.TouchEnabled then
-        uiScale.Scale = 0.9 -- 20% reduction for mobile
-    else
-        uiScale.Scale = 1.0 -- Full size for PC
-    end
-
-    -- Calculate responsive size with margins
+    -- Calculate perfect size based on device screen size
     local screenSize = workspace.CurrentCamera.ViewportSize
-    local margin = 40 -- 1cm equivalent
-    local maxWidth = 500
-    local maxHeight = 600
+    local isMobile = UserInputService.TouchEnabled
     
-    local frameWidth = math.min(maxWidth, screenSize.X - 2 * margin)
-    local frameHeight = math.min(maxHeight, screenSize.Y - 2 * margin)
+    -- Calculate perfect dimensions for the device
+    local baseWidth = isMobile and 380 or 500
+    local baseHeight = isMobile and 550 or 650
     
-    -- Main Frame with improved visibility and margins
+    -- Adjust for very small screens
+    if screenSize.Y < 700 then
+        baseHeight = screenSize.Y * 0.8
+        baseWidth = baseHeight * 0.7
+    end
+    
+    -- Ensure minimum size
+    baseWidth = math.max(baseWidth, 350)
+    baseHeight = math.max(baseHeight, 450)
+    
+    -- Main Frame with perfect size
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
-    mainFrame.Position = UDim2.new(0.5, -frameWidth/2, 0.5, -frameHeight/2)
+    mainFrame.Size = UDim2.new(0, baseWidth, 0, baseHeight)
+    mainFrame.Position = UDim2.new(0.5, -baseWidth/2, 0.5, -baseHeight/2)
     mainFrame.BackgroundColor3 = theme.background
     mainFrame.BorderSizePixel = 0
     mainFrame.ClipsDescendants = true
     mainFrame.Parent = screenGui
     
-    -- Responsive function
+    -- Responsive function to handle screen size changes
     local function updateSize()
         screenSize = workspace.CurrentCamera.ViewportSize
-        frameWidth = math.min(maxWidth, screenSize.X - 2 * margin)
-        frameHeight = math.min(maxHeight, screenSize.Y - 2 * margin)
         
-        mainFrame.Size = UDim2.new(0, frameWidth, 0, frameHeight)
-        mainFrame.Position = UDim2.new(0.5, -frameWidth/2, 0.5, -frameHeight/2)
+        -- Recalculate dimensions if screen size changes
+        local newBaseWidth = isMobile and 380 or 500
+        local newBaseHeight = isMobile and 550 or 650
+        
+        if screenSize.Y < 700 then
+            newBaseHeight = screenSize.Y * 0.8
+            newBaseWidth = newBaseHeight * 0.7
+        end
+        
+        newBaseWidth = math.max(newBaseWidth, 350)
+        newBaseHeight = math.max(newBaseHeight, 450)
+        
+        mainFrame.Size = UDim2.new(0, newBaseWidth, 0, newBaseHeight)
+        mainFrame.Position = UDim2.new(0.5, -newBaseWidth/2, 0.5, -newBaseHeight/2)
     end
     
     -- Connect resize event
@@ -637,7 +711,7 @@ local function createGUI()
     
     -- Header with shadow effect
     local header = Instance.new("Frame")
-    header.Size = UDim2.new(1, 0, 0, 100)
+    header.Size = UDim2.new(1, 0, 0, isMobile and 80 or 100)
     header.BackgroundColor3 = theme.logoBackground
     header.BorderSizePixel = 0
     header.Parent = mainFrame
@@ -647,7 +721,7 @@ local function createGUI()
     headerCorner.Parent = header
 
     -- Logo container with improved visibility
-    local logoSize = UserInputService.TouchEnabled and 80 or 100
+    local logoSize = isMobile and 60 or 80
     local logoContainer = Instance.new("Frame")
     logoContainer.Size = UDim2.new(0, logoSize, 0, logoSize)
     logoContainer.Position = UDim2.new(0.5, -logoSize/2, 0.5, -logoSize/2)
@@ -669,11 +743,11 @@ local function createGUI()
     local title = Instance.new("TextLabel")
     title.Text = "MOLYN FREE"
     title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 0, 0, 110)
+    title.Position = UDim2.new(0, 0, 0, isMobile and 90 or 110)
     title.BackgroundTransparency = 1
     title.TextColor3 = theme.primary
     title.Font = Enum.Font.GothamBold
-    title.TextSize = UserInputService.TouchEnabled and 20 or 24
+    title.TextSize = isMobile and 16 or 24
     title.TextStrokeTransparency = 0.8
     title.TextStrokeColor3 = Color3.new(0, 0, 0)
     title.Parent = mainFrame
@@ -681,13 +755,13 @@ local function createGUI()
     -- Subtitle with game name
     local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v6.1 | "..gameName
+    subtitle.Text = "Public SCRIPT HUB | v6.6 | "..gameName
     subtitle.Size = UDim2.new(1, 0, 0, 20)
-    subtitle.Position = UDim2.new(0, 0, 0, 140)
+    subtitle.Position = UDim2.new(0, 0, 0, isMobile and 120 or 140)
     subtitle.BackgroundTransparency = 1
     subtitle.TextColor3 = theme.textSecondary
     subtitle.Font = Enum.Font.Gotham
-    subtitle.TextSize = UserInputService.TouchEnabled and 12 or 14
+    subtitle.TextSize = isMobile and 10 or 14
     subtitle.Parent = mainFrame
 
     -- Close Button with hover effect
@@ -714,8 +788,8 @@ local function createGUI()
     
     -- Tab Buttons
     local tabsFrame = Instance.new("Frame")
-    tabsFrame.Size = UDim2.new(1, -20, 0, 30)
-    tabsFrame.Position = UDim2.new(0, 10, 0, 170)
+    tabsFrame.Size = UDim2.new(1, -20, 0, isMobile and 25 or 30)
+    tabsFrame.Position = UDim2.new(0, 10, 0, isMobile and 150 or 170)
     tabsFrame.BackgroundTransparency = 1
     tabsFrame.Parent = mainFrame
     
@@ -726,7 +800,7 @@ local function createGUI()
     scriptsTab.BackgroundColor3 = theme.primary
     scriptsTab.TextColor3 = theme.text
     scriptsTab.Font = Enum.Font.GothamBold
-    scriptsTab.TextSize = UserInputService.TouchEnabled and 12 or 14
+    scriptsTab.TextSize = isMobile and 10 or 14
     scriptsTab.Parent = tabsFrame
     
     local feedbackTab = Instance.new("TextButton")
@@ -736,7 +810,7 @@ local function createGUI()
     feedbackTab.BackgroundColor3 = theme.surface
     feedbackTab.TextColor3 = theme.text
     feedbackTab.Font = Enum.Font.GothamBold
-    feedbackTab.TextSize = UserInputService.TouchEnabled and 12 or 14
+    feedbackTab.TextSize = isMobile and 10 or 14
     feedbackTab.Parent = tabsFrame
     
     local tabCorner = Instance.new("UICorner")
@@ -746,8 +820,8 @@ local function createGUI()
     
     -- Content Area
     local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -20, 1, -210)
-    contentFrame.Position = UDim2.new(0, 10, 0, 210)
+    contentFrame.Size = UDim2.new(1, -20, 1, isMobile and -180 or -210)
+    contentFrame.Position = UDim2.new(0, 10, 0, isMobile and 180 or 210)
     contentFrame.BackgroundTransparency = 1
     contentFrame.ClipsDescendants = true
     contentFrame.Parent = mainFrame
@@ -756,7 +830,7 @@ local function createGUI()
     local scriptsFrame = Instance.new("ScrollingFrame")
     scriptsFrame.Size = UDim2.new(1, 0, 1, 0)
     scriptsFrame.BackgroundTransparency = 1
-    scriptsFrame.ScrollBarThickness = 6
+    scriptsFrame.ScrollBarThickness = isMobile and 8 or 6
     scriptsFrame.ScrollBarImageColor3 = theme.primary
     scriptsFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
     scriptsFrame.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -764,12 +838,12 @@ local function createGUI()
     scriptsFrame.Parent = contentFrame
 
     local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 10)
+    layout.Padding = UDim.new(0, isMobile and 8 or 10)
     layout.Parent = scriptsFrame
 
     -- Search Bar
     local searchBar = Instance.new("Frame")
-    searchBar.Size = UDim2.new(1, 0, 0, 40)
+    searchBar.Size = UDim2.new(1, 0, 0, isMobile and 35 or 40)
     searchBar.BackgroundColor3 = theme.surface
     searchBar.Parent = scriptsFrame
     
@@ -784,7 +858,7 @@ local function createGUI()
     searchBox.BackgroundColor3 = theme.background
     searchBox.TextColor3 = theme.text
     searchBox.Font = Enum.Font.Gotham
-    searchBox.TextSize = UserInputService.TouchEnabled and 14 or 16
+    searchBox.TextSize = isMobile and 12 or 16
     searchBox.TextXAlignment = Enum.TextXAlignment.Left
     searchBox.ClearTextOnFocus = false
     searchBox.Text = ""
@@ -826,40 +900,15 @@ local function createGUI()
     -- Get current game ID
     local currentGameId = tostring(game.PlaceId)
     
-    -- Create two separate lists: featured and regular scripts
-    local featuredScripts = {}
-    local regularScripts = {}
-    
-    for _, script in ipairs(SCRIPTS_DATABASE) do
-        local isFeatured = false
-        
-        -- Check if script is featured in current game
-        if script.featuredIn then
-            for _, gameId in ipairs(script.featuredIn) do
-                if gameId == currentGameId then
-                    isFeatured = true
-                    break
-                end
-            end
-        end
-        
-        if isFeatured then
-            table.insert(featuredScripts, script)
-        else
-            table.insert(regularScripts, script)
-        end
-    end
-    
-    -- Sort both lists alphabetically
-    table.sort(featuredScripts, function(a, b) return a.name < b.name end)
-    table.sort(regularScripts, function(a, b) return a.name < b.name end)
+    -- Get featured and regular scripts
+    local featuredScripts, regularScripts = GetFeaturedScripts(currentGameId)
     
     -- Create Script Buttons with improved visuals
     local scriptButtons = {}
     
     local function createScriptButton(scriptData, isFeatured)
         local btn = Instance.new("Frame")
-        btn.Size = UDim2.new(1, 0, 0, UserInputService.TouchEnabled and 70 or 80)
+        btn.Size = UDim2.new(1, 0, 0, isMobile and 60 or 80)
         btn.BackgroundColor3 = theme.surface
         btn.Parent = scriptsFrame
         btn.Name = scriptData.name
@@ -872,12 +921,12 @@ local function createGUI()
         -- Script Name with improved visibility
         local name = Instance.new("TextLabel")
         name.Text = scriptData.name
-        name.Size = UDim2.new(0.7, 0, 0, 25)
-        name.Position = UDim2.new(0, 15, 0, 10)
+        name.Size = UDim2.new(0.7, 0, 0, isMobile and 20 or 25)
+        name.Position = UDim2.new(0, 10, 0, 5)
         name.BackgroundTransparency = 1
         name.TextColor3 = isFeatured and theme.primary or theme.text
         name.Font = Enum.Font.GothamBold
-        name.TextSize = UserInputService.TouchEnabled and 16 or 18
+        name.TextSize = isMobile and 12 or 18
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextStrokeTransparency = 0.8
         name.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -886,24 +935,24 @@ local function createGUI()
         -- Description
         local desc = Instance.new("TextLabel")
         desc.Text = scriptData.description
-        desc.Size = UDim2.new(0.7, 0, 0, 15)
-        desc.Position = UDim2.new(0, 15, 0, 35)
+        desc.Size = UDim2.new(0.7, 0, 0, isMobile and 15 or 15)
+        desc.Position = UDim2.new(0, 10, 0, isMobile and 25 or 35)
         desc.BackgroundTransparency = 1
         desc.TextColor3 = theme.textSecondary
         desc.Font = Enum.Font.Gotham
-        desc.TextSize = UserInputService.TouchEnabled and 12 or 14
+        desc.TextSize = isMobile and 10 or 14
         desc.TextXAlignment = Enum.TextXAlignment.Left
         desc.Parent = btn
 
         -- Execute Button with improved interaction
         local execBtn = Instance.new("TextButton")
         execBtn.Text = "EXECUTE"
-        execBtn.Size = UDim2.new(0, UserInputService.TouchEnabled and 80 or 100, 0, UserInputService.TouchEnabled and 25 or 30)
-        execBtn.Position = UDim2.new(1, UserInputService.TouchEnabled and -90 or -120, 0.5, UserInputService.TouchEnabled and -12.5 or -15)
+        execBtn.Size = UDim2.new(0, isMobile and 70 or 100, 0, isMobile and 22 or 30)
+        execBtn.Position = UDim2.new(1, isMobile and -80 or -120, 0.5, isMobile and -11 or -15)
         execBtn.BackgroundColor3 = theme.primary
         execBtn.TextColor3 = theme.text
         execBtn.Font = Enum.Font.GothamBold
-        execBtn.TextSize = UserInputService.TouchEnabled and 12 or 14
+        execBtn.TextSize = isMobile and 10 or 14
         execBtn.Parent = btn
 
         local execCorner = Instance.new("UICorner")
@@ -938,8 +987,8 @@ local function createGUI()
         -- Featured Badge with animation
         if isFeatured then
             local badge = Instance.new("Frame")
-            badge.Size = UDim2.new(0, UserInputService.TouchEnabled and 60 or 80, 0, 20)
-            badge.Position = UDim2.new(1, UserInputService.TouchEnabled and -160 or -230, 0, 10)
+            badge.Size = UDim2.new(0, isMobile and 50 or 80, 0, isMobile and 16 or 20)
+            badge.Position = UDim2.new(1, isMobile and -140 or -230, 0, 5)
             badge.BackgroundColor3 = theme.accent
             badge.Parent = btn
 
@@ -953,7 +1002,7 @@ local function createGUI()
             badgeText.BackgroundTransparency = 1
             badgeText.TextColor3 = theme.text
             badgeText.Font = Enum.Font.GothamBold
-            badgeText.TextSize = UserInputService.TouchEnabled and 8 or 10
+            badgeText.TextSize = isMobile and 7 or 10
             badgeText.Parent = badge
 
             spawn(function()
@@ -1023,26 +1072,29 @@ local function createGUI()
         screenGui:Destroy()
     end)
 
-    -- Dragging System with improved feel
+    -- Advanced Dragging System with smooth movement
     local dragging = false
     local dragStart, startPos
     
     header.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or (input.UserInputType == Enum.UserInputType.Touch and not UserInputService:GetFocusedTextBox()) then
             dragging = true
             dragStart = input.Position
             startPos = mainFrame.Position
             
-            input.Changed:Connect(function()
+            -- Smooth dragging effect
+            local connection
+            connection = input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
+                    connection:Disconnect()
                 end
             end)
         end
     end)
     
     UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
@@ -1053,8 +1105,8 @@ local function createGUI()
     mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     
     TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, frameWidth, 0, frameHeight),
-        Position = UDim2.new(0.5, -frameWidth/2, 0.5, -frameHeight/2)
+        Size = UDim2.new(0, baseWidth, 0, baseHeight),
+        Position = UDim2.new(0.5, -baseWidth/2, 0.5, -baseHeight/2)
     }):Play()
 
     return screenGui
