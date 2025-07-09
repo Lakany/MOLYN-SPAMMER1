@@ -2,13 +2,13 @@
   MOLYN SCRIPT HUB
   Company: MOLYN DEVELOPMENT
   Creator: MOHAMMED
-  Version: 6.6
+  Version: 6.8
   Premium UI Script Hub
   Features:
-  - واجهة متكاملة متجاوبة مع جميع أحجام الشاشات
+  - واجهة متكاملة متجاوبة مع جميع الشاشات
+  - إصلاح مشكلة الشاشات الصغيرة
   - نظام سحب للواجهة (Draggable)
   - حجم تلقائي مثالي لكل جهاز
-  - تصميم عصري مع إمكانية التمرير
 ]]
 
 -- Services
@@ -39,11 +39,12 @@ local BLACKLIST = {
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
-    ["Love40Q4"] = "You are banned from using this script"
+    ["Love40Q4"] = "You are banned from using this script",
+    ["8_yg7"] = "You are banned from using this script"
 }
 
 -- Warning list
-local WARNING_LIST = "SCAMMERS / نصابين: zaman544 % Fffgftgggf1 % moen1234567891 % ONIRYTC"
+local WARNING_LIST = "SCAMMERS / نصابين: zaman544 % Fffgftgggf1 % moen1234567891 % ONIRYTC % 8_yg7"
 
 -- Feedback system
 local FEEDBACK_COOLDOWN = 120
@@ -74,7 +75,10 @@ local SCRIPTS_DATABASE = {
         description = "OP Features like aimbot and auto shot for mm2 and more",
         category = "Game",
         code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua", false))()]],
-        featuredIn = {"142823291", "893973440"} -- MM2 and Flee the Facility
+        featuredIn = {
+            ["142823291"] = true, -- Murder Mystery 2
+            ["893973440"] = true   -- Flee the Facility
+        }
     },
     {
         name = "backdoor.exe",
@@ -101,14 +105,19 @@ local SCRIPTS_DATABASE = {
         description = "commands spammer script",
         category = "spam",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lakany/Molyn-spammer/main/Molyn%20spammer'))()]],
-        featuredIn = {"12957268429"} -- Default featured
+        featuredIn = {
+            ["12957268429"] = true, -- Default featured
+            ["default"] = true
+        }
     },
     {
         name = "Infinite Yield",
         description = "Advanced admin commands script",
         category = "Admin",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()]],
-        featuredIn = {"default"} -- Default featured
+        featuredIn = {
+            ["default"] = true -- Default featured
+        }
     },
     {
         name = "MOLYN TROLL CLONE TOWER",
@@ -127,7 +136,9 @@ local SCRIPTS_DATABASE = {
         description = "Powerful admin commands script",
         category = "Admin",
         code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]],
-        featuredIn = {"default"} -- Default featured
+        featuredIn = {
+            ["default"] = true -- Default featured
+        }
     },
     {
         name = "Unban VC",
@@ -146,28 +157,37 @@ local SCRIPTS_DATABASE = {
                 })
             end
         ]],
-        featuredIn = {"default"} -- Default featured
+        featuredIn = {
+            ["default"] = true -- Default featured
+        }
     },
     {
         name = "vfly molyn",
         description = "Fly with car or without (in maintenance)",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
-        featuredIn = {"default"} -- Default featured
+        featuredIn = {
+            ["default"] = true -- Default featured
+        }
     },
     {
         name = "virtual keyboard",
         description = "you can press keys like pc or laptop",
         category = "Movement",
         code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]],
-        featuredIn = {"default"} -- Default featured
+        featuredIn = {
+            ["default"] = true -- Default featured
+        }
     },
     {
         name = "MOLYN cmdbar",
         description = "spam commands in chat or something in chat",
         category = "spam",
         code = [[loadstring(game:HttpGet("https://pastebin.com/raw/Uwu54JfE"))()]],
-        featuredIn = {"12957268429"} -- Default featured
+        featuredIn = {
+            ["12957268429"] = true, -- Default featured
+            ["default"] = true
+        }
     },
     {
         name = "Simple Spy",
@@ -186,7 +206,10 @@ local SCRIPTS_DATABASE = {
         description = "Car modification like speed and turbo and more",
         category = "Vehicle",
         code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lugtastic/hubs/main/EcuX-V2.lua',true))()]],
-        featuredIn = {"891852901", "893973440"} -- Greenville and Flee the Facility
+        featuredIn = {
+            ["891852901"] = true, -- Greenville
+            ["893973440"] = true   -- Flee the Facility
+        }
     },
     {
         name = "Redz Blox Fruits",
@@ -199,7 +222,9 @@ local SCRIPTS_DATABASE = {
             }
             loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
         ]],
-        featuredIn = {"2753915549"} -- Blox Fruits
+        featuredIn = {
+            ["2753915549"] = true -- Blox Fruits
+        }
     }
 }
 
@@ -367,7 +392,7 @@ local function HandleSpecialUser()
     return nil
 end
 
--- نظام Featured Scripts المحدث والمحسن
+-- نظام Featured Scripts المحدث والمحسن مع دعم خاص لكل ماب
 local function GetFeaturedScripts(currentGameId)
     local defaultFeatured = {
         "vfly molyn",
@@ -378,37 +403,26 @@ local function GetFeaturedScripts(currentGameId)
     
     local featuredScripts = {}
     local regularScripts = {}
-    local isGameSupported = false
-    
-    -- التحقق مما إذا كانت اللعبة مدعومة
-    for _, script in ipairs(SCRIPTS_DATABASE) do
-        if script.featuredIn then
-            for _, gameId in ipairs(script.featuredIn) do
-                if gameId == currentGameId and gameId ~= "default" then
-                    isGameSupported = true
-                    break
-                end
-            end
-            if isGameSupported then break end
-        end
-    end
     
     for _, script in ipairs(SCRIPTS_DATABASE) do
         local isFeatured = false
         
-        -- إذا كانت اللعبة غير مدعومة، استخدم القائمة الافتراضية
-        if not isGameSupported then
-            if table.find(defaultFeatured, script.name) then
+        -- التحقق من وجود النص في قائمة المميزين لهذه اللعبة
+        if script.featuredIn then
+            if script.featuredIn[currentGameId] then
                 isFeatured = true
-            end
-        else
-            -- إذا كانت اللعبة مدعومة، تحقق من النصوص المميزة لهذه اللعبة
-            if script.featuredIn then
-                for _, gameId in ipairs(script.featuredIn) do
-                    if gameId == currentGameId then
-                        isFeatured = true
+            elseif script.featuredIn["default"] then
+                -- التحقق من وجود نصوص مميزة افتراضية إذا لم تكن اللعبة مدعومة
+                local hasSpecificFeature = false
+                for _, s in ipairs(SCRIPTS_DATABASE) do
+                    if s.featuredIn and s.featuredIn[currentGameId] then
+                        hasSpecificFeature = true
                         break
                     end
+                end
+                
+                if not hasSpecificFeature then
+                    isFeatured = true
                 end
             end
         end
@@ -464,13 +478,24 @@ local function SendMonitoringData()
     end
 end
 
--- Feedback UI محسن للجوال
+-- Feedback UI محسن للجوال مع إصلاح زر الإرسال
 local function CreateFeedbackUI(parent)
+    local isMobile = UserInputService.TouchEnabled
+    
+    -- جعل الإطار الرئيسي قابل للتمرير
+    local feedbackScroll = Instance.new("ScrollingFrame")
+    feedbackScroll.Size = UDim2.new(1, 0, 1, 0)
+    feedbackScroll.BackgroundTransparency = 1
+    feedbackScroll.ScrollBarThickness = 6
+    feedbackScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    feedbackScroll.ScrollingDirection = Enum.ScrollingDirection.Y
+    feedbackScroll.Parent = parent
+    
     local feedbackFrame = Instance.new("Frame")
-    feedbackFrame.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 320 or 280)
+    feedbackFrame.Size = UDim2.new(1, -20, 0, isMobile and 400 or 350)
     feedbackFrame.Position = UDim2.new(0, 10, 0, 0)
     feedbackFrame.BackgroundColor3 = theme.surface
-    feedbackFrame.Parent = parent
+    feedbackFrame.Parent = feedbackScroll
     
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
@@ -479,12 +504,12 @@ local function CreateFeedbackUI(parent)
     -- Warning Label محسن للهواتف
     local warningLabel = Instance.new("TextLabel")
     warningLabel.Text = WARNING_LIST
-    warningLabel.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 60 or 40)
+    warningLabel.Size = UDim2.new(1, -20, 0, isMobile and 70 or 60)
     warningLabel.Position = UDim2.new(0, 10, 0, 10)
     warningLabel.BackgroundColor3 = theme.error
     warningLabel.TextColor3 = theme.text
     warningLabel.Font = Enum.Font.GothamBold
-    warningLabel.TextSize = UserInputService.TouchEnabled and 10 or 12
+    warningLabel.TextSize = isMobile and 10 or 12
     warningLabel.TextWrapped = true
     warningLabel.Parent = feedbackFrame
     
@@ -495,12 +520,12 @@ local function CreateFeedbackUI(parent)
     -- Discord Button
     local discordButton = Instance.new("TextButton")
     discordButton.Text = "JOIN SERVER DISCORD"
-    discordButton.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 35 or 40)
-    discordButton.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 80 or 60)
+    discordButton.Size = UDim2.new(1, -20, 0, isMobile and 35 or 40)
+    discordButton.Position = UDim2.new(0, 10, 0, isMobile and 90 or 80)
     discordButton.BackgroundColor3 = theme.discordBlue
     discordButton.TextColor3 = theme.text
     discordButton.Font = Enum.Font.GothamBold
-    discordButton.TextSize = UserInputService.TouchEnabled and 12 or 16
+    discordButton.TextSize = isMobile and 12 or 16
     discordButton.Parent = feedbackFrame
     
     local discordCorner = Instance.new("UICorner")
@@ -520,23 +545,23 @@ local function CreateFeedbackUI(parent)
     local title = Instance.new("TextLabel")
     title.Text = "Send Feedback"
     title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 125 or 110)
+    title.Position = UDim2.new(0, 10, 0, isMobile and 140 or 130)
     title.BackgroundTransparency = 1
     title.TextColor3 = theme.primary
     title.Font = Enum.Font.GothamBold
-    title.TextSize = UserInputService.TouchEnabled and 14 or 18
+    title.TextSize = isMobile and 14 or 18
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = feedbackFrame
     
     -- Feedback Text Box محسن للهواتف
     local textBox = Instance.new("TextBox")
     textBox.PlaceholderText = "Your feedback (max "..MAX_FEEDBACK_LENGTH.." characters)"
-    textBox.Size = UDim2.new(1, -20, 0, UserInputService.TouchEnabled and 80 or 60)
-    textBox.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 155 or 140)
+    textBox.Size = UDim2.new(1, -20, 0, isMobile and 100 or 80)
+    textBox.Position = UDim2.new(0, 10, 0, isMobile and 175 or 165)
     textBox.BackgroundColor3 = theme.background
     textBox.TextColor3 = theme.text
     textBox.Font = Enum.Font.Gotham
-    textBox.TextSize = UserInputService.TouchEnabled and 12 or 14
+    textBox.TextSize = isMobile and 12 or 14
     textBox.TextWrapped = true
     textBox.ClearTextOnFocus = false
     textBox.Text = ""
@@ -550,7 +575,7 @@ local function CreateFeedbackUI(parent)
     local charCount = Instance.new("TextLabel")
     charCount.Text = "0/"..MAX_FEEDBACK_LENGTH
     charCount.Size = UDim2.new(1, -20, 0, 20)
-    charCount.Position = UDim2.new(0, 10, 0, UserInputService.TouchEnabled and 240 or 205)
+    charCount.Position = UDim2.new(0, 10, 0, isMobile and 280 or 250)
     charCount.BackgroundTransparency = 1
     charCount.TextColor3 = theme.textSecondary
     charCount.Font = Enum.Font.Gotham
@@ -558,14 +583,15 @@ local function CreateFeedbackUI(parent)
     charCount.TextXAlignment = Enum.TextXAlignment.Right
     charCount.Parent = feedbackFrame
     
-    -- Send Button
+    -- Send Button مع إصلاح مشكلة الشاشات الصغيرة
     local sendButton = Instance.new("TextButton")
     sendButton.Text = "SEND"
-    sendButton.Size = UDim2.new(0, UserInputService.TouchEnabled and 80 or 100, 0, UserInputService.TouchEnabled and 25 or 30)
-    sendButton.Position = UDim2.new(0.5, UserInputService.TouchEnabled and -40 or -50, 0, UserInputService.TouchEnabled and 270 or 230)
+    sendButton.Size = UDim2.new(0, isMobile and 100 or 120, 0, isMobile and 30 or 35)
+    sendButton.Position = UDim2.new(0.5, isMobile and -50 or -60, 0, isMobile and 320 or 280)
     sendButton.BackgroundColor3 = theme.primary
     sendButton.TextColor3 = theme.text
     sendButton.Font = Enum.Font.GothamBold
+    sendButton.TextSize = isMobile and 14 or 16
     sendButton.Parent = feedbackFrame
     
     local btnCorner = Instance.new("UICorner")
@@ -576,7 +602,7 @@ local function CreateFeedbackUI(parent)
     local credits = Instance.new("TextLabel")
     credits.Text = "Credits:\nمحمد / coc*_****5"
     credits.Size = UDim2.new(1, -20, 0, 40)
-    credits.Position = UDim2.new(0, 10, 1, UserInputService.TouchEnabled and -45 or -50)
+    credits.Position = UDim2.new(0, 10, 1, isMobile and -40 or -50)
     credits.BackgroundTransparency = 1
     credits.TextColor3 = theme.textSecondary
     credits.Font = Enum.Font.Gotham
@@ -606,6 +632,7 @@ local function CreateFeedbackUI(parent)
             return
         end
         
+        -- إرسال الفيدباك مباشرة بدون إنشاء بوت جديد
         local data = {
             ["content"] = "New Feedback Received",
             ["embeds"] = {{
@@ -630,7 +657,10 @@ local function CreateFeedbackUI(parent)
         end
     end)
     
-    return feedbackFrame
+    -- ضبط حجم الإطار التلقائي
+    feedbackFrame.AutomaticSize = Enum.AutomaticSize.Y
+    
+    return feedbackScroll
 end
 
 -- Main GUI creation with perfect size for all devices
@@ -660,14 +690,8 @@ local function createGUI()
     local isMobile = UserInputService.TouchEnabled
     
     -- Calculate perfect dimensions for the device
-    local baseWidth = isMobile and 380 or 500
-    local baseHeight = isMobile and 550 or 650
-    
-    -- Adjust for very small screens
-    if screenSize.Y < 700 then
-        baseHeight = screenSize.Y * 0.8
-        baseWidth = baseHeight * 0.7
-    end
+    local baseWidth = math.min(400, screenSize.X * 0.9)
+    local baseHeight = math.min(550, screenSize.Y * 0.85)
     
     -- Ensure minimum size
     baseWidth = math.max(baseWidth, 350)
@@ -687,13 +711,8 @@ local function createGUI()
         screenSize = workspace.CurrentCamera.ViewportSize
         
         -- Recalculate dimensions if screen size changes
-        local newBaseWidth = isMobile and 380 or 500
-        local newBaseHeight = isMobile and 550 or 650
-        
-        if screenSize.Y < 700 then
-            newBaseHeight = screenSize.Y * 0.8
-            newBaseWidth = newBaseHeight * 0.7
-        end
+        local newBaseWidth = math.min(400, screenSize.X * 0.9)
+        local newBaseHeight = math.min(550, screenSize.Y * 0.85)
         
         newBaseWidth = math.max(newBaseWidth, 350)
         newBaseHeight = math.max(newBaseHeight, 450)
@@ -711,7 +730,7 @@ local function createGUI()
     
     -- Header with shadow effect
     local header = Instance.new("Frame")
-    header.Size = UDim2.new(1, 0, 0, isMobile and 80 or 100)
+    header.Size = UDim2.new(1, 0, 0, isMobile and 70 or 90)
     header.BackgroundColor3 = theme.logoBackground
     header.BorderSizePixel = 0
     header.Parent = mainFrame
@@ -721,7 +740,7 @@ local function createGUI()
     headerCorner.Parent = header
 
     -- Logo container with improved visibility
-    local logoSize = isMobile and 60 or 80
+    local logoSize = isMobile and 50 or 70
     local logoContainer = Instance.new("Frame")
     logoContainer.Size = UDim2.new(0, logoSize, 0, logoSize)
     logoContainer.Position = UDim2.new(0.5, -logoSize/2, 0.5, -logoSize/2)
@@ -743,11 +762,11 @@ local function createGUI()
     local title = Instance.new("TextLabel")
     title.Text = "MOLYN FREE"
     title.Size = UDim2.new(1, 0, 0, 30)
-    title.Position = UDim2.new(0, 0, 0, isMobile and 90 or 110)
+    title.Position = UDim2.new(0, 0, 0, isMobile and 80 or 100)
     title.BackgroundTransparency = 1
     title.TextColor3 = theme.primary
     title.Font = Enum.Font.GothamBold
-    title.TextSize = isMobile and 16 or 24
+    title.TextSize = isMobile and 16 or 22
     title.TextStrokeTransparency = 0.8
     title.TextStrokeColor3 = Color3.new(0, 0, 0)
     title.Parent = mainFrame
@@ -755,13 +774,13 @@ local function createGUI()
     -- Subtitle with game name
     local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v6.6 | "..gameName
+    subtitle.Text = "Public SCRIPT HUB | v6.8 | "..gameName
     subtitle.Size = UDim2.new(1, 0, 0, 20)
-    subtitle.Position = UDim2.new(0, 0, 0, isMobile and 120 or 140)
+    subtitle.Position = UDim2.new(0, 0, 0, isMobile and 105 or 130)
     subtitle.BackgroundTransparency = 1
     subtitle.TextColor3 = theme.textSecondary
     subtitle.Font = Enum.Font.Gotham
-    subtitle.TextSize = isMobile and 10 or 14
+    subtitle.TextSize = isMobile and 10 or 12
     subtitle.Parent = mainFrame
 
     -- Close Button with hover effect
@@ -789,7 +808,7 @@ local function createGUI()
     -- Tab Buttons
     local tabsFrame = Instance.new("Frame")
     tabsFrame.Size = UDim2.new(1, -20, 0, isMobile and 25 or 30)
-    tabsFrame.Position = UDim2.new(0, 10, 0, isMobile and 150 or 170)
+    tabsFrame.Position = UDim2.new(0, 10, 0, isMobile and 130 or 160)
     tabsFrame.BackgroundTransparency = 1
     tabsFrame.Parent = mainFrame
     
@@ -800,7 +819,7 @@ local function createGUI()
     scriptsTab.BackgroundColor3 = theme.primary
     scriptsTab.TextColor3 = theme.text
     scriptsTab.Font = Enum.Font.GothamBold
-    scriptsTab.TextSize = isMobile and 10 or 14
+    scriptsTab.TextSize = isMobile and 10 or 12
     scriptsTab.Parent = tabsFrame
     
     local feedbackTab = Instance.new("TextButton")
@@ -810,7 +829,7 @@ local function createGUI()
     feedbackTab.BackgroundColor3 = theme.surface
     feedbackTab.TextColor3 = theme.text
     feedbackTab.Font = Enum.Font.GothamBold
-    feedbackTab.TextSize = isMobile and 10 or 14
+    feedbackTab.TextSize = isMobile and 10 or 12
     feedbackTab.Parent = tabsFrame
     
     local tabCorner = Instance.new("UICorner")
@@ -820,8 +839,8 @@ local function createGUI()
     
     -- Content Area
     local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(1, -20, 1, isMobile and -180 or -210)
-    contentFrame.Position = UDim2.new(0, 10, 0, isMobile and 180 or 210)
+    contentFrame.Size = UDim2.new(1, -20, 1, isMobile and -165 or -200)
+    contentFrame.Position = UDim2.new(0, 10, 0, isMobile and 160 or 200)
     contentFrame.BackgroundTransparency = 1
     contentFrame.ClipsDescendants = true
     contentFrame.Parent = mainFrame
@@ -858,7 +877,7 @@ local function createGUI()
     searchBox.BackgroundColor3 = theme.background
     searchBox.TextColor3 = theme.text
     searchBox.Font = Enum.Font.Gotham
-    searchBox.TextSize = isMobile and 12 or 16
+    searchBox.TextSize = isMobile and 12 or 14
     searchBox.TextXAlignment = Enum.TextXAlignment.Left
     searchBox.ClearTextOnFocus = false
     searchBox.Text = ""
@@ -908,7 +927,7 @@ local function createGUI()
     
     local function createScriptButton(scriptData, isFeatured)
         local btn = Instance.new("Frame")
-        btn.Size = UDim2.new(1, 0, 0, isMobile and 60 or 80)
+        btn.Size = UDim2.new(1, 0, 0, isMobile and 60 or 70)
         btn.BackgroundColor3 = theme.surface
         btn.Parent = scriptsFrame
         btn.Name = scriptData.name
@@ -926,7 +945,7 @@ local function createGUI()
         name.BackgroundTransparency = 1
         name.TextColor3 = isFeatured and theme.primary or theme.text
         name.Font = Enum.Font.GothamBold
-        name.TextSize = isMobile and 12 or 18
+        name.TextSize = isMobile and 12 or 14
         name.TextXAlignment = Enum.TextXAlignment.Left
         name.TextStrokeTransparency = 0.8
         name.TextStrokeColor3 = Color3.new(0, 0, 0)
@@ -940,19 +959,19 @@ local function createGUI()
         desc.BackgroundTransparency = 1
         desc.TextColor3 = theme.textSecondary
         desc.Font = Enum.Font.Gotham
-        desc.TextSize = isMobile and 10 or 14
+        desc.TextSize = isMobile and 10 or 12
         desc.TextXAlignment = Enum.TextXAlignment.Left
         desc.Parent = btn
 
         -- Execute Button with improved interaction
         local execBtn = Instance.new("TextButton")
         execBtn.Text = "EXECUTE"
-        execBtn.Size = UDim2.new(0, isMobile and 70 or 100, 0, isMobile and 22 or 30)
-        execBtn.Position = UDim2.new(1, isMobile and -80 or -120, 0.5, isMobile and -11 or -15)
+        execBtn.Size = UDim2.new(0, isMobile and 70 or 90, 0, isMobile and 22 or 25)
+        execBtn.Position = UDim2.new(1, isMobile and -80 or -100, 0.5, isMobile and -11 or -12.5)
         execBtn.BackgroundColor3 = theme.primary
         execBtn.TextColor3 = theme.text
         execBtn.Font = Enum.Font.GothamBold
-        execBtn.TextSize = isMobile and 10 or 14
+        execBtn.TextSize = isMobile and 10 or 12
         execBtn.Parent = btn
 
         local execCorner = Instance.new("UICorner")
@@ -987,8 +1006,8 @@ local function createGUI()
         -- Featured Badge with animation
         if isFeatured then
             local badge = Instance.new("Frame")
-            badge.Size = UDim2.new(0, isMobile and 50 or 80, 0, isMobile and 16 or 20)
-            badge.Position = UDim2.new(1, isMobile and -140 or -230, 0, 5)
+            badge.Size = UDim2.new(0, isMobile and 50 or 70, 0, isMobile and 16 or 18)
+            badge.Position = UDim2.new(1, isMobile and -140 or -180, 0, 5)
             badge.BackgroundColor3 = theme.accent
             badge.Parent = btn
 
@@ -1002,7 +1021,7 @@ local function createGUI()
             badgeText.BackgroundTransparency = 1
             badgeText.TextColor3 = theme.text
             badgeText.Font = Enum.Font.GothamBold
-            badgeText.TextSize = isMobile and 7 or 10
+            badgeText.TextSize = isMobile and 7 or 9
             badgeText.Parent = badge
 
             spawn(function()
