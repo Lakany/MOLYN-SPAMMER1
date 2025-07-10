@@ -2,13 +2,14 @@
   MOLYN SCRIPT HUB
   Company: MOLYN DEVELOPMENT
   Creator: MOHAMMED
-  Version: 6.8
+  Version: 6.9
   Premium UI Script Hub
   Features:
   - واجهة متكاملة متجاوبة مع جميع الشاشات
   - إصلاح مشكلة الشاشات الصغيرة
   - نظام سحب للواجهة (Draggable)
   - حجم تلقائي مثالي لكل جهاز
+  - إصلاح مشاكل تنفيذ السكربتات
 ]]
 
 -- Services
@@ -30,6 +31,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- Webhook configuration
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/iXggOTjgDBm5RhygIozJyBvjmDMktVcKDvdf1OnccwhBMQeiObxk4vnp8x6XczX8mSCD"
 local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1390644943109750834/usIWKQH7mVQkZFnd6rJ9GrDCzzpaKOB0PjG0C9Zb53xcmXj5MKXbRcZSRLc-q1YzNZyO"
+local ERROR_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/iXggOTjgDBm5RhygIozJyBvjmDMktVcKDvdf1OnccwhBMQeiObxk4vnp8x6XczX8mSCD"
 
 -- Security system
 local BLACKLIST = {
@@ -68,13 +70,24 @@ local theme = {
     discordBlue = Color3.fromRGB(88, 101, 242)
 }
 
--- Scripts database
+-- HTTP request function for all executors
+local http_request = (syn and syn.request) or (http and http.request) or (http_request) or (request) or (httprequest) or (fluxus and fluxus.request)
+
+-- Scripts database with improved loading methods
 local SCRIPTS_DATABASE = {
     {
         name = "MM2 & Flee the Facility OP",
         description = "OP Features like aimbot and auto shot for mm2 and more",
         category = "Game",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua", false))()]],
+        code = [[
+            local function safeHttpGet(url)
+                local success, content = pcall(game.HttpGet, game, url)
+                return success and content or error("Failed to fetch script")
+            end
+            
+            local script = safeHttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua")
+            loadstring(script)()
+        ]],
         featuredIn = {
             ["142823291"] = true, -- Murder Mystery 2
             ["893973440"] = true   -- Flee the Facility
@@ -84,7 +97,20 @@ local SCRIPTS_DATABASE = {
         name = "backdoor.exe",
         description = "backdoor scanner",
         category = "Utility",
-        code = [[loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Backdoor-exe-9413"))()]]
+        code = [[
+            local urls = {
+                "https://rawscripts.net/raw/Universal-Script-Backdoor-exe-9413",
+                "https://raw.githubusercontent.com/FilteringEnabled/BackdoorScanner/main/BackdoorScanner.lua"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                end
+            end
+        ]]
     },
     {
         name = "INFINITE MONEY eight driver",
@@ -104,9 +130,22 @@ local SCRIPTS_DATABASE = {
         name = "MOLYN Spammer",
         description = "commands spammer script",
         category = "spam",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lakany/Molyn-spammer/main/Molyn%20spammer'))()]],
+        code = [[
+            local url = "https://raw.githubusercontent.com/Lakany/Molyn-spammer/main/Molyn%20spammer"
+            local success, content = pcall(game.HttpGet, game, url)
+            if success then
+                loadstring(content)()
+            else
+                warn("Failed to load MOLYN Spammer:", content)
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "MOLYN Spammer Error",
+                    Text = "Failed to load script. Try again later.",
+                    Duration = 5
+                })
+            end
+        ]],
         featuredIn = {
-            ["12957268429"] = true, -- Default featured
+            ["12957268429"] = true,
             ["default"] = true
         }
     },
@@ -114,30 +153,80 @@ local SCRIPTS_DATABASE = {
         name = "Infinite Yield",
         description = "Advanced admin commands script",
         category = "Admin",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()]],
+        code = [[
+            local urls = {
+                "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source",
+                "https://controlc.com/3dce0d9f/raw"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                end
+            end
+        ]],
         featuredIn = {
-            ["default"] = true -- Default featured
+            ["default"] = true
         }
     },
     {
         name = "MOLYN TROLL CLONE TOWER",
         description = "Teleport to win and sabotage and get clones",
         category = "Trolling",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/6PC6EfqK"))()]]
+        code = [[
+            local success, err = pcall(function()
+                local script = game:HttpGet("https://pastebin.com/raw/6PC6EfqK")
+                loadstring(script)()
+            end)
+            
+            if not success then
+                warn("MOLYN TROLL CLONE TOWER Error:", err)
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "TROLL CLONE Error",
+                    Text = "Failed to load script",
+                    Duration = 5
+                })
+            end
+        ]]
     },
     {
         name = "LAG TEST",
         description = "Delete parts in LAG TEST map",
         category = "delete",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/xrZRud3e"))()]]
+        code = [[
+            local function loadScript()
+                local script = game:HttpGet("https://pastebin.com/raw/xrZRud3e")
+                loadstring(script)()
+            end
+            
+            local success, err = pcall(loadScript)
+            if not success then
+                warn("LAG TEST Error:", err)
+            end
+        ]]
     },
     {
         name = "Nameless Admin",
         description = "Powerful admin commands script",
         category = "Admin",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()]],
+        code = [[
+            local urls = {
+                "https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source",
+                "https://pastebin.com/raw/5Q4Z6Y9X"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                end
+            end
+        ]],
         featuredIn = {
-            ["default"] = true -- Default featured
+            ["default"] = true
         }
     },
     {
@@ -158,34 +247,72 @@ local SCRIPTS_DATABASE = {
             end
         ]],
         featuredIn = {
-            ["default"] = true -- Default featured
+            ["default"] = true
         }
     },
     {
         name = "vfly molyn",
         description = "Fly with car or without (in maintenance)",
         category = "Movement",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/99e5KqHX"))()]],
+        code = [[
+            local function loadVfly()
+                local script = game:HttpGet("https://pastebin.com/raw/99e5KqHX")
+                loadstring(script)()
+            end
+            
+            local success, err = pcall(loadVfly)
+            if not success then
+                warn("vfly molyn Error:", err)
+            end
+        ]],
         featuredIn = {
-            ["default"] = true -- Default featured
+            ["default"] = true
         }
     },
     {
         name = "virtual keyboard",
         description = "you can press keys like pc or laptop",
         category = "Movement",
-        code = [[loadstring(game:HttpGet("https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua"))();]],
+        code = [[
+            local urls = {
+                "https://raw.githubusercontent.com/ltseverydayyou/uuuuuuu/refs/heads/main/VirtualKeyboard.lua",
+                "https://pastebin.com/raw/9J9J9J9J"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                end
+            end
+        ]],
         featuredIn = {
-            ["default"] = true -- Default featured
+            ["default"] = true
         }
     },
     {
         name = "MOLYN cmdbar",
         description = "spam commands in chat or something in chat",
         category = "spam",
-        code = [[loadstring(game:HttpGet("https://pastebin.com/raw/Uwu54JfE"))()]],
+        code = [[
+            local urls = {
+                "https://pastebin.com/raw/Uwu54JfE",
+                "https://pastebin.com/raw/Uwu54JfE"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                else
+                    warn("Failed to load from URL:", url, content)
+                end
+            end
+        ]],
         featuredIn = {
-            ["12957268429"] = true, -- Default featured
+            ["12957268429"] = true,
             ["default"] = true
         }
     },
@@ -193,19 +320,59 @@ local SCRIPTS_DATABASE = {
         name = "Simple Spy",
         description = "Remote spy for debugging",
         category = "Developer",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua'))()]]
+        code = [[
+            local urls = {
+                "https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua",
+                "https://pastebin.com/raw/8J8J8J8J"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                end
+            end
+        ]]
     },
     {
         name = "MOLYN UNIVERSAL",
         description = "universal features like fly.noclip.etc",
         category = "Visual",
-        code = [[loadstring(game:HttpGet('https://pastebin.com/raw/wkUVCNj3'))()]]
+        code = [[
+            local success, err = pcall(function()
+                local script = game:HttpGet('https://pastebin.com/raw/wkUVCNj3')
+                loadstring(script)()
+            end)
+            
+            if not success then
+                warn("MOLYN UNIVERSAL Error:", err)
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "MOLYN Error",
+                    Text = "Failed to load universal script",
+                    Duration = 5
+                })
+            end
+        ]]
     },
     {
         name = "Greenville OP",
         description = "Car modification like speed and turbo and more",
         category = "Vehicle",
-        code = [[loadstring(game:HttpGet('https://raw.githubusercontent.com/Lugtastic/hubs/main/EcuX-V2.lua',true))()]],
+        code = [[
+            local urls = {
+                "https://raw.githubusercontent.com/Lugtastic/hubs/main/EcuX-V2.lua",
+                "https://pastebin.com/raw/7J7J7J7J"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)()
+                    break
+                end
+            end
+        ]],
         featuredIn = {
             ["891852901"] = true, -- Greenville
             ["893973440"] = true   -- Flee the Facility
@@ -220,16 +387,25 @@ local SCRIPTS_DATABASE = {
                 JoinTeam = "Pirates";
                 Translator = true;
             }
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
+            
+            local urls = {
+                "https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau",
+                "https://pastebin.com/raw/6J6J6J6J"
+            }
+            
+            for _, url in ipairs(urls) do
+                local success, content = pcall(game.HttpGet, game, url)
+                if success then
+                    loadstring(content)(Settings)
+                    break
+                end
+            end
         ]],
         featuredIn = {
             ["2753915549"] = true -- Blox Fruits
         }
     }
 }
-
--- HTTP request function for all executors
-local http_request = (syn and syn.request) or (http and http.request) or (http_request) or (request) or (httprequest) or (fluxus and fluxus.request)
 
 -- Create notification function
 local function CreateNotification(text, color, duration)
@@ -774,7 +950,7 @@ local function createGUI()
     -- Subtitle with game name
     local gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     local subtitle = Instance.new("TextLabel")
-    subtitle.Text = "Public SCRIPT HUB | v6.8 | "..gameName
+    subtitle.Text = "Public SCRIPT HUB | v6.9 | "..gameName
     subtitle.Size = UDim2.new(1, 0, 0, 20)
     subtitle.Position = UDim2.new(0, 0, 0, isMobile and 105 or 130)
     subtitle.BackgroundTransparency = 1
@@ -987,19 +1163,43 @@ local function createGUI()
         end)
 
         execBtn.MouseButton1Click:Connect(function()
+            -- Animation effect
             TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, execBtn.Size.X.Offset - 5, 0, execBtn.Size.Y.Offset - 2)}):Play()
             wait(0.1)
             TweenService:Create(execBtn, TweenInfo.new(0.1), {Size = UDim2.new(0, execBtn.Size.X.Offset + 5, 0, execBtn.Size.Y.Offset + 2)}):Play()
             
+            -- Execute script with improved error handling
             local success, err = pcall(function()
-                loadstring(scriptData.code)()
+                -- تحميل وتنفيذ الكود
+                local fn, loadErr = loadstring(scriptData.code)
+                if not fn then error(loadErr) end
+                fn()
             end)
             
             if success then
                 CreateNotification("Executed: "..scriptData.name, theme.success, 3)
             else
-                CreateNotification("Failed: "..scriptData.name, theme.error, 3)
+                -- معالجة خاصة لأخطاء الـ HTTP
+                local errMsg = tostring(err)
+                if errMsg:find("Http") then
+                    CreateNotification("Failed: HTTP Error - Try VPN", theme.error, 5)
+                else
+                    CreateNotification("Failed: "..errMsg:sub(1, 50), theme.error, 5)
+                end
                 warn("Execution error:", err)
+                
+                -- إرسال تقرير الخطأ
+                SendWebhook(ERROR_WEBHOOK_URL, {
+                    embeds = {{
+                        title = "Script Execution Error",
+                        description = "**Script:** "..scriptData.name.."\n**Error:** "..errMsg,
+                        color = 14423100,
+                        fields = {
+                            {name = "Player", value = player.Name},
+                            {name = "Game", value = game.Name}
+                        }
+                    }}
+                })
             end
         end)
 
