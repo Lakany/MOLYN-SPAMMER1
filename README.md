@@ -35,8 +35,9 @@ local ERROR_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/
 
 -- Security system
 local BLACKLIST = {
-    ["."] = "You are banned from using this script",
+    ["Haiderfire15"] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
+    ["haider123_kill1"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
