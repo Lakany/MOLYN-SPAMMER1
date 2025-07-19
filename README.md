@@ -43,7 +43,7 @@ local BLACKLIST = {
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
     ["Love40Q4"] = "You are banned from using this script",
-    ["Mtpskhe"] = "You are banned from using this script",
+    ["jjee"] = "You are banned from using this script",
     ["8_yg7"] = "You are banned from using this script"
 }
 
