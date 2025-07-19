@@ -36,12 +36,14 @@ local FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/13906449431097508
 -- Security system
 local BLACKLIST = {
     ["haiderfire15"] = "You are banned from using this script",
+    ["Rahemm11"] = "نيج امك من وره ومن كدام واصعدها اعدام واحط بكوسها مسطره ودزتت اقلام واخليها تعترف بنياجها زعيم الظلام الي ناجها بالحلام وطشر ع كسها الجام واحط بطيزها زوج حمام وظربها بعير عادل امام خلي ع كسها اقوه من الدمام",
     ["LOUAI_LOL"] = "You are banned from using this script",
     ["zaman544"] = "You are banned from using this script",
     ["moen1234567891"] = "You are banned from using this script",
     ["Fffgftgggf1"] = "You are banned from using this script",
     ["ONIRYTC"] = "You are banned from using this script",
     ["Love40Q4"] = "You are banned from using this script",
+    ["Mtpskhe"] = "You are banned from using this script",
     ["8_yg7"] = "You are banned from using this script"
 }
 
